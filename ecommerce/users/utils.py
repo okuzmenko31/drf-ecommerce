@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from .models import UserToken, User
-from rest_framework.response import Response
+from rest_framework import status
 
 
 class TokenMixin:
@@ -61,7 +61,7 @@ class TokenMixin:
     def get_token(self):
         return self.__token
 
-    def check_token(self, token_value, email):
+    def check_token_error_msg(self, token_value, email):
         try:
             token = UserToken.objects.get(token_owner=email,
                                           token=token_value)
@@ -70,13 +70,24 @@ class TokenMixin:
         except UserToken.DoesNotExist:
             return {'token_miss_error': self.get_token_miss_error()}
         try:
-            user = User.objects.get(email=email)
-            user.is_active = True
-            user.save()
+            User.objects.get(email=email)
         except User.DoesNotExist:
             return {'error': 'No such user with this email address!'}
-        self.delete_token(token_value, email)
-        return {'success': 'You successfully confirmed your email!'}
+
+    def check_token(self, token_value, email):
+        try:
+            token = UserToken.objects.get(token_owner=email,
+                                          token=token_value)
+            if token.expired:
+                return False
+        except UserToken.DoesNotExist:
+            return False
+        try:
+            User.objects.get(email=email)
+        except User.DoesNotExist:
+            return False
+        self.delete_token(token, email)
+        return True
 
     @staticmethod
     def delete_token(token, email):
@@ -110,8 +121,8 @@ class MailContextMixin:
                                     'been sent to your email.'
         elif token_type == 'ce':
             cls.__success_message = 'Mail with email changing ' \
-                                    'confirmation has been sent to your new email.\n' \
-                                    'Your email in this account will be changed' \
+                                    'confirmation has been sent to your new email.' \
+                                    'Your email in this account will be changed ' \
                                     'after confirmation.'
         else:
             cls.__success_message = 'Mail with password reset confirmation has been sent ' \

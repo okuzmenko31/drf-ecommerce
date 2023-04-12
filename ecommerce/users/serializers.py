@@ -41,14 +41,30 @@ class RegistrationSerializer(TokenMixin,
 
 
 class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField(write_only=True)
-    password = serializers.CharField(write_only=True)
+    email = serializers.EmailField(write_only=True, required=True)
+    password = serializers.CharField(write_only=True, required=True)
 
     def validate(self, attrs):
         try:
             user = User.objects.get(email=attrs['email'])
+            if user.auth_token:
+                user.auth_token.delete()
+            Token.objects.create(user=user)  # creating authentication token
             if not user.check_password(attrs['password']):
                 raise serializers.ValidationError('The password is wrong!')
         except User.DoesNotExist:
             raise serializers.ValidationError('No such user with this email!')
+        return attrs
+
+
+class ChangeEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField(label='New E-mail',
+                                   write_only=True,
+                                   validators=[UniqueValidator(queryset=User.objects.all())],
+                                   required=True)
+
+    def validate(self, attrs):
+        email = attrs['email']
+        if User.objects.filter(email=email).exists():
+            raise serializers.ValidationError('User with this email is already exists')
         return attrs
