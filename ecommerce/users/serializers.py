@@ -68,3 +68,43 @@ class ChangeEmailSerializer(serializers.Serializer):
         if User.objects.filter(email=email).exists():
             raise serializers.ValidationError('User with this email is already exists')
         return attrs
+
+
+class SendPasswordResetMailSerializer(serializers.Serializer):
+    email = serializers.EmailField(write_only=True, required=True)
+
+    def validate(self, attrs):
+        email = attrs['email']
+        try:
+            User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError('No such user with this email address!')
+        return attrs
+
+
+class PasswordResetSerializer(serializers.Serializer):
+    password = serializers.CharField(write_only=True,
+                                     required=True,
+                                     validators=[validate_password])
+    password1 = serializers.CharField(write_only=True,
+                                      required=True,
+                                      validators=[validate_password])
+
+    def validate(self, attrs):
+        password = attrs['password']
+        password1 = attrs['password1']
+        request = self.context.get('request')
+        email = request.query_params.get('email', None)
+
+        if password1 != password:
+            raise serializers.ValidationError('Password mismatch')
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError('No such user with this email address')
+        if user.check_password(password):
+            raise serializers.ValidationError('New password must not be the same as the old one')
+        user.set_password(password)
+        user.save()
+        return attrs

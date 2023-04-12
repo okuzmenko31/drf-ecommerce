@@ -9,5 +9,7 @@ urlpatterns = [
     path('change_email/', ChangeEmailAPIView.as_view(), name='change_email_send'),
     path('change_email_confirm/<token>/<email>/',
          ChangeEmailConfirmAPIView.as_view(),
-         name='change_email_confirm')
+         name='change_email_confirm'),
+    path('password_reset/', SendPasswordResetAPIView.as_view(), name='send_password_reset'),
+    path('password_reset/<token>/<email>/', PasswordResetAPIView.as_view(), name='password_reset')
 ]
