@@ -7,10 +7,11 @@ from .serializers import (RegistrationSerializer,
                           ChangeEmailSerializer,
                           SendPasswordResetMailSerializer,
                           PasswordResetSerializer,
-                          ProfileSerializer)
+                          ProfileSerializer,
+                          UserBonusesSerializer)
 from .permissions import IsNotAuthenticated
 from rest_framework.views import APIView
-from .models import User, UserToken
+from .models import User, UserToken, UserBonusesBalance
 from .utils import TokenMixin, ConfirmationMailMixin
 from django.contrib.auth import logout
 from rest_framework.authentication import TokenAuthentication
@@ -185,7 +186,7 @@ class PasswordResetAPIView(TokenMixin,
                             status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserProfile(generics.RetrieveUpdateAPIView):
+class UserProfileAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
@@ -199,3 +200,13 @@ class UserProfile(generics.RetrieveUpdateAPIView):
         if '@' not in self.request.data['username']:
             username = '@' + self.request.data['username']
             serializer.save(username=username)
+
+
+class UserBonusesBalanceAPIView(generics.ListAPIView):
+    serializer_class = UserBonusesSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    queryset = UserBonusesBalance.objects.all()
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
