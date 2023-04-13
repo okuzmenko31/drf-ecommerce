@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'dj_rest_auth',
+    'drf_spectacular',
 
     # applications
     'users',
@@ -149,4 +150,15 @@ AUTH_USER_MODEL = 'users.User'
 DEFAULT_AUTHENTICATION_CLASSES = {
     'rest_framework.authentication.TokenAuthentication',
     'rest_framework.authentication.SessionAuthentication'
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'DRF Ecommerce project',
+    'DESCRIPTION': 'DRF Ecommerce',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }

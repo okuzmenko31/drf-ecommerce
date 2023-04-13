@@ -1,0 +1,530 @@
+openapi: 3.0.3
+info:
+  title: DRF Ecommerce project
+  version: 1.0.0
+  description: DRF Ecommerce
+paths:
+  /api/v1/user/bonuses_balance/:
+    get:
+      operationId: api_v1_user_bonuses_balance_list
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserBonuses'
+          description: ''
+  /api/v1/user/change_email/:
+    post:
+      operationId: api_v1_user_change_email_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeEmail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChangeEmail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChangeEmail'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangeEmail'
+          description: ''
+  /api/v1/user/change_email_confirm/{token}/{email}/:
+    get:
+      operationId: api_v1_user_change_email_confirm_retrieve
+      parameters:
+      - in: path
+        name: email
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/user/confirm_email/{token}/{email}/:
+    get:
+      operationId: api_v1_user_confirm_email_retrieve
+      parameters:
+      - in: path
+        name: email
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/user/login/:
+    get:
+      operationId: api_v1_user_login_retrieve
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Login'
+          description: ''
+    post:
+      operationId: api_v1_user_login_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Login'
+          description: ''
+  /api/v1/user/logout/:
+    get:
+      operationId: api_v1_user_logout_retrieve
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/user/password_reset/:
+    post:
+      operationId: api_v1_user_password_reset_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendPasswordResetMail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SendPasswordResetMail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SendPasswordResetMail'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendPasswordResetMail'
+          description: ''
+  /api/v1/user/password_reset/{token}/{email}/:
+    get:
+      operationId: api_v1_user_password_reset_retrieve
+      parameters:
+      - in: path
+        name: email
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordReset'
+          description: ''
+    post:
+      operationId: api_v1_user_password_reset_create_2
+      parameters:
+      - in: path
+        name: email
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordReset'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordReset'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordReset'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordReset'
+          description: ''
+  /api/v1/user/profile/:
+    get:
+      operationId: api_v1_user_profile_retrieve
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+          description: ''
+    put:
+      operationId: api_v1_user_profile_update
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Profile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Profile'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+          description: ''
+    patch:
+      operationId: api_v1_user_profile_partial_update
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProfile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProfile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProfile'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+          description: ''
+  /api/v1/user/registration/:
+    post:
+      operationId: api_v1_user_registration_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Registration'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Registration'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Registration'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Registration'
+          description: ''
+  /api/v1/user/update_bonuses/{id}/:
+    get:
+      operationId: api_v1_user_update_bonuses_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user bonuses balance.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBonuses'
+          description: ''
+    put:
+      operationId: api_v1_user_update_bonuses_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user bonuses balance.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBonuses'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserBonuses'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserBonuses'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBonuses'
+          description: ''
+    patch:
+      operationId: api_v1_user_update_bonuses_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user bonuses balance.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserBonuses'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserBonuses'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserBonuses'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBonuses'
+          description: ''
+components:
+  schemas:
+    ChangeEmail:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          writeOnly: true
+          title: New E-mail
+      required:
+      - email
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - password
+    PasswordReset:
+      type: object
+      properties:
+        password:
+          type: string
+          writeOnly: true
+        password1:
+          type: string
+          writeOnly: true
+      required:
+      - password
+      - password1
+    PatchedProfile:
+      type: object
+      properties:
+        username:
+          type: string
+        full_name:
+          type: string
+        email:
+          type: string
+          format: email
+          readOnly: true
+    PatchedUserBonuses:
+      type: object
+      properties:
+        user:
+          type: integer
+          readOnly: true
+        balance:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          title: User balance
+    Profile:
+      type: object
+      properties:
+        username:
+          type: string
+        full_name:
+          type: string
+        email:
+          type: string
+          format: email
+          readOnly: true
+      required:
+      - email
+    Registration:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+        password1:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - password
+      - password1
+    SendPasswordResetMail:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          writeOnly: true
+      required:
+      - email
+    UserBonuses:
+      type: object
+      properties:
+        user:
+          type: integer
+          readOnly: true
+        balance:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          title: User balance
+      required:
+      - user
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"
