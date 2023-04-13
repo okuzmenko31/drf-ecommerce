@@ -6,7 +6,8 @@ from .serializers import (RegistrationSerializer,
                           LoginSerializer,
                           ChangeEmailSerializer,
                           SendPasswordResetMailSerializer,
-                          PasswordResetSerializer)
+                          PasswordResetSerializer,
+                          ProfileSerializer)
 from .permissions import IsNotAuthenticated
 from rest_framework.views import APIView
 from .models import User, UserToken
@@ -41,8 +42,9 @@ class ConfirmEmailAPIView(TokenMixin,
         token = self.kwargs.pop('token')
         email = self.kwargs.pop('email')
         if self.check_token(token, email):
-            user = self.request.user
+            user = User.objects.get(email=email)
             user.is_active = True
+            user.save()
             return Response({'success': 'You successfully confirmed your email!'},
                             status=status.HTTP_200_OK)
         else:
@@ -181,3 +183,19 @@ class PasswordResetAPIView(TokenMixin,
         else:
             return Response(data=self.check_token_error_msg(token, email),
                             status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserProfile(generics.RetrieveUpdateAPIView):
+    serializer_class = ProfileSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    queryset = User.objects.all()
+
+    def get_object(self):
+        user = self.queryset.get(id=self.request.user.id)
+        return user
+
+    def perform_update(self, serializer):
+        if '@' not in self.request.data['username']:
+            username = '@' + self.request.data['username']
+            serializer.save(username=username)

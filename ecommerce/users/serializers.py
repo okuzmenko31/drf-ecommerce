@@ -108,3 +108,15 @@ class PasswordResetSerializer(serializers.Serializer):
         user.set_password(password)
         user.save()
         return attrs
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=False,
+                                     validators=[UniqueValidator(queryset=User.objects.all())])
+    full_name = serializers.CharField(required=False)
+    email = serializers.EmailField(required=False,
+                                   read_only=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'full_name', 'email')

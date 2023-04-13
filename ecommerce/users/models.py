@@ -14,7 +14,8 @@ class User(PermissionsMixin, AbstractBaseUser):
                               null=False)
     full_name = models.CharField(max_length=250,
                                  verbose_name='Full name',
-                                 null=False)
+                                 blank=True,
+                                 null=True)
     is_staff = models.BooleanField(verbose_name='Staff status', default=False)
     is_superuser = models.BooleanField(verbose_name='Superuser status', default=False)
     is_active = models.BooleanField(verbose_name='User activated', default=True)
@@ -73,3 +74,15 @@ class UserToken(models.Model):
 
     def __str__(self):
         return f'{self.token}, {self.token_type}'
+
+
+class UserBonusesBalance(models.Model):
+    user = models.OneToOneField(User,
+                                on_delete=models.CASCADE,
+                                verbose_name='User',
+                                related_name='bonuses_balance')
+    balance = models.IntegerField(default=0,
+                                  verbose_name='User balance')
+
+    def __str__(self):
+        return f'{self.balance}$'
