@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework import generics, status
 from .serializers import (RegistrationSerializer,
@@ -15,6 +16,8 @@ from .models import User, UserToken, UserBonusesBalance
 from .utils import TokenMixin, ConfirmationMailMixin
 from django.contrib.auth import logout
 from rest_framework.authentication import TokenAuthentication
+from rest_framework import viewsets
+from rest_framework import mixins
 
 
 class UserRegistrationAPIView(TokenMixin,
@@ -210,3 +213,16 @@ class UserBonusesBalanceAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
+
+
+class UpdateUserBonusesBalanceViewSet(mixins.UpdateModelMixin,
+                                      mixins.RetrieveModelMixin,
+                                      viewsets.GenericViewSet):
+    serializer_class = UserBonusesSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    authentication_classes = [TokenAuthentication]
+    queryset = UserBonusesBalance.objects.all()
+
+    def get_object(self):
+        user = get_object_or_404(UserBonusesBalance, pk=self.kwargs['pk'])
+        return user

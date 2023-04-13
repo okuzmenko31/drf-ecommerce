@@ -123,6 +123,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class UserBonusesSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+
     class Meta:
         model = UserBonusesBalance
         fields = ('user', 'balance')

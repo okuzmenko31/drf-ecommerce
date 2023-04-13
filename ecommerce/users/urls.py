@@ -1,5 +1,9 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from .views import *
+
+router = DefaultRouter()
+router.register(r'update_bonuses', UpdateUserBonusesBalanceViewSet, basename='update_bonuses_balance')
 
 urlpatterns = [
     path('registration/', UserRegistrationAPIView.as_view(), name='registration'),
@@ -13,5 +17,6 @@ urlpatterns = [
     path('password_reset/', SendPasswordResetAPIView.as_view(), name='send_password_reset'),
     path('password_reset/<token>/<email>/', PasswordResetAPIView.as_view(), name='password_reset'),
     path('profile/', UserProfileAPIView.as_view(), name='profile'),
-    path('bonuses_balance/', UserBonusesBalanceAPIView.as_view(), name='bonuses_balance')
+    path('bonuses_balance/', UserBonusesBalanceAPIView.as_view(), name='bonuses_balance'),
+    path('', include(router.urls))
 ]
