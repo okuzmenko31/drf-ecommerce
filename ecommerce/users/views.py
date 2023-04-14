@@ -95,7 +95,8 @@ class LogoutAPIView(APIView):
     def get(self, *args, **kwargs):
         user = self.request.user
         user.auth_token.delete()
-        user_tokens = UserToken.objects.filter(token_owner=user.email, expired=False)
+        user_tokens = UserToken.objects.filter(
+            token_owner=user.email, expired=False)
         for token in user_tokens:
             token.delete()
         try:
@@ -180,7 +181,8 @@ class PasswordResetAPIView(TokenMixin,
         token = self.kwargs.pop('token')
         email = self.kwargs.pop('email')
         if self.check_token(token, email):
-            serializer = PasswordResetSerializer(data=self.request.data, context={'request': self.request})
+            serializer = PasswordResetSerializer(data=self.request.data,
+                                                 context={'request': self.request})
             serializer.is_valid(raise_exception=True)
             return Response({'success': 'Password reset success.'},
                             status=status.HTTP_200_OK)

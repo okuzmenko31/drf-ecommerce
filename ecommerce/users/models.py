@@ -74,6 +74,10 @@ class UserToken(models.Model):
 
     def __str__(self):
         return f'{self.token}, {self.token_type}'
+    
+    @classmethod 
+    def get_token_from_str(cls, token_value: str, token_owner: str):
+        return cls.objects.get(token=token_value, token_owner=token_owner)
 
 
 class UserBonusesBalance(models.Model):

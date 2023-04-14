@@ -6,6 +6,25 @@ from django.template.loader import render_to_string
 from .models import UserToken, User
 from rest_framework import status
 
+MESSAGES = {
+    'token_miss_error': ('This token does not exist or belongs '
+                         'to another user!'),
+    'token_expired_error': ('Signature expired'),
+    'no_user': ('No such user with this email address!'),
+    'complete_registration': ('Ecommerce - complete registration.'),
+    'complete_email_changing': ('Ecommerce - complete changing email'),
+    'complete_password_reset': ('Ecommerce - complete password reset'),
+    'registration_mail_sent': ('Mail with registration link has '
+                               'been sent to your email.'),
+    'email_changing_sent': ('Mail with email changing confirmation '
+                            'has been sent to your new email. '
+                            'Your email in this account will be '
+                            'changed after confirmation.'),
+
+    'password_reset_sent': ('Mail with password reset confirmation has been sent '
+                            'to your email.')
+}
+
 
 class TokenTypes:
     SIGNUP = 'su'
@@ -17,14 +36,6 @@ class TokenMixin:
     __token = None
     __token_owner = None
     token_type = None
-
-    @staticmethod
-    def get_token_miss_error():
-        return 'This token does not exist or belongs to another user!'
-
-    @staticmethod
-    def get_token_expired_error():
-        return 'Signature expired'
 
     @staticmethod
     def _token_types():
@@ -70,21 +81,19 @@ class TokenMixin:
 
     def check_token_error_msg(self, token_value, email):
         try:
-            token = UserToken.objects.get(token_owner=email,
-                                          token=token_value)
+            token = UserToken.get_token_from_str(token_value, email)
             if token.expired:
-                return {'token_expired_error': self.get_token_expired_error()}
+                return {'error': MESSAGES['token_expired_error']}
         except UserToken.DoesNotExist:
-            return {'token_miss_error': self.get_token_miss_error()}
+            return {'error': MESSAGES['token_miss_error']}
         try:
             User.objects.get(email=email)
         except User.DoesNotExist:
-            return {'error': 'No such user with this email address!'}
+            return {'error': MESSAGES['no_user']}
 
     def check_token(self, token_value, email):
         try:
-            token = UserToken.objects.get(token_owner=email,
-                                          token=token_value)
+            token = UserToken.get_token_from_str(token_value, email)
             if token.expired:
                 return False
         except UserToken.DoesNotExist:
@@ -93,18 +102,16 @@ class TokenMixin:
             User.objects.get(email=email)
         except User.DoesNotExist:
             return False
-        self.delete_token(token, email)
+        self.delete_token(token_value, email)
         return True
 
     @staticmethod
     def delete_token(token, email):
         try:
-            token = UserToken.objects.get(token_owner=email,
-                                          token=token)
+            token = UserToken.get_token_from_str(token, email)
             token.delete()
-            return True
         except UserToken.DoesNotExist:
-            return False
+            raise ValueError('Token Does Not Exist!')
 
 
 class MailContextMixin:
@@ -115,25 +122,20 @@ class MailContextMixin:
     @classmethod
     def _set_subject(cls, token_type):
         if token_type == 'su':
-            cls.__subject = 'Ecommerce - complete registration.'
+            cls.__subject = MESSAGES['complete_registration']
         elif token_type == 'ce':
-            cls.__subject = 'Ecommerce - complete changing email'
+            cls.__subject = MESSAGES['complete_email_changing']
         else:
-            cls.__subject = 'Ecommerce - complete password reset'
+            cls.__subject = MESSAGES['complete_password_reset']
 
     @classmethod
     def _set_success_message(cls, token_type):
         if token_type == 'su':
-            cls.__success_message = 'Mail with registration link has ' \
-                                    'been sent to your email.'
+            cls.__success_message = MESSAGES['registration_mail_sent']
         elif token_type == 'ce':
-            cls.__success_message = 'Mail with email changing ' \
-                                    'confirmation has been sent to your new email.' \
-                                    'Your email in this account will be changed ' \
-                                    'after confirmation.'
+            cls.__success_message = MESSAGES['email_changing_sent']
         else:
-            cls.__success_message = 'Mail with password reset confirmation has been sent ' \
-                                    'to your email.'
+            cls.__success_message = MESSAGES['password_reset_sent']
 
     def get_context(self, token_type):
         self._set_subject(token_type)
