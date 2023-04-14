@@ -7,6 +7,12 @@ from .models import UserToken, User
 from rest_framework import status
 
 
+class TokenTypes:
+    SIGNUP = 'su'
+    CHANGE_EMAIL = 'ce'
+    PASSWORD_RESET = 'pr'
+
+
 class TokenMixin:
     __token = None
     __token_owner = None
@@ -39,7 +45,8 @@ class TokenMixin:
     def create_token(self):
         if self._check_token_type():
             if UserToken.objects.filter(token=self.__token, token_owner=self.__token_owner).exists():
-                UserToken.objects.get(token=self.__token, token_owner=self.__token_owner).delete()
+                UserToken.objects.get(token=self.__token,
+                                      token_owner=self.__token_owner).delete()
                 self.__token = UserToken.objects.create(token=self.generate_token(),
                                                         token_type=self.token_type,
                                                         token_owner=self.__token_owner)

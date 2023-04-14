@@ -2,14 +2,14 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from .models import User, UserBonusesBalance
-from .utils import TokenMixin, ConfirmationMailMixin
+from .utils import TokenMixin, ConfirmationMailMixin, TokenTypes
 from rest_framework.authtoken.models import Token
 
 
 class RegistrationSerializer(TokenMixin,
                              ConfirmationMailMixin,
                              serializers.Serializer):
-    token_type = 'su'
+    token_type = TokenTypes.SIGNUP
     html_message_template = 'users/confirm_email_message.html'
 
     email = serializers.EmailField(required=True,

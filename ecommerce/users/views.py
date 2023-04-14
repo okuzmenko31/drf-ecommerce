@@ -13,7 +13,7 @@ from .serializers import (RegistrationSerializer,
 from .permissions import IsNotAuthenticated
 from rest_framework.views import APIView
 from .models import User, UserToken, UserBonusesBalance
-from .utils import TokenMixin, ConfirmationMailMixin
+from .utils import TokenMixin, ConfirmationMailMixin, TokenTypes
 from django.contrib.auth import logout
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import viewsets
@@ -26,7 +26,7 @@ class UserRegistrationAPIView(TokenMixin,
     queryset = User.objects.all()
     serializer_class = RegistrationSerializer
     permission_classes = [IsNotAuthenticated]
-    token_type = 'su'
+    token_type = TokenTypes.SIGNUP
 
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
@@ -40,7 +40,7 @@ class UserRegistrationAPIView(TokenMixin,
 class ConfirmEmailAPIView(TokenMixin,
                           APIView):
     permission_classes = [IsNotAuthenticated]
-    token_type = 'su'
+    token_type = TokenTypes.SIGNUP
 
     def get(self, *args, **kwargs):
         token = self.kwargs.pop('token')
@@ -111,7 +111,7 @@ class ChangeEmailAPIView(TokenMixin,
     serializer_class = ChangeEmailSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
-    token_type = 'ce'
+    token_type = TokenTypes.CHANGE_EMAIL
     html_message_template = 'users/confirm_email_changing.html'
 
     def post(self, *args, **kwargs):
@@ -128,7 +128,7 @@ class ChangeEmailConfirmAPIView(TokenMixin,
                                 APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
-    token_type = 'ce'
+    token_type = TokenTypes.CHANGE_EMAIL
 
     def get(self, *args, **kwargs):
         token = kwargs.pop('token')
@@ -148,7 +148,7 @@ class SendPasswordResetAPIView(TokenMixin,
                                ConfirmationMailMixin,
                                APIView):
     serializer_class = SendPasswordResetMailSerializer
-    token_type = 'pr'
+    token_type = TokenTypes.PASSWORD_RESET
     html_message_template = 'users/password_reset_msg.html'
 
     def post(self, *args, **kwargs):
@@ -164,7 +164,7 @@ class SendPasswordResetAPIView(TokenMixin,
 class PasswordResetAPIView(TokenMixin,
                            APIView):
     serializer_class = PasswordResetSerializer
-    token_type = 'pr'
+    token_type = TokenTypes.PASSWORD_RESET
 
     def get(self, *args, **kwargs):
         token = self.kwargs.pop('token')
