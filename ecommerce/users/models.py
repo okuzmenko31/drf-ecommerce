@@ -1,3 +1,5 @@
+import binascii
+import os
 from django.db import models
 from .managers import UserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
@@ -17,11 +19,15 @@ class User(PermissionsMixin, AbstractBaseUser):
                                  blank=True,
                                  null=True)
     is_staff = models.BooleanField(verbose_name='Staff status', default=False)
-    is_superuser = models.BooleanField(verbose_name='Superuser status', default=False)
-    is_active = models.BooleanField(verbose_name='User activated', default=True)
+    is_superuser = models.BooleanField(
+        verbose_name='Superuser status', default=False)
+    is_active = models.BooleanField(
+        verbose_name='User activated', default=True)
     is_admin = models.BooleanField(default=False)
-    last_login = models.DateTimeField(verbose_name='Last login', null=True, blank=True)
-    date_joined = models.DateTimeField(verbose_name='Date joined', auto_now_add=True)
+    last_login = models.DateTimeField(
+        verbose_name='Last login', null=True, blank=True)
+    date_joined = models.DateTimeField(
+        verbose_name='Date joined', auto_now_add=True)
 
     USERNAME_FIELD = "email"
     EMAIL_FIELD = "email"
@@ -38,10 +44,13 @@ class User(PermissionsMixin, AbstractBaseUser):
 
     def save(self, *args, **kwargs):
         if self._state.adding and (
-                not self.username or User.objects.filter(username=self.username).exists()
+                not self.username or User.objects.filter(
+                    username=self.username).exists()
         ):
             email = self.email
             self.username = User.objects.generate_username(email)
+        if '@' not in self.username:
+            self.username = '@' + self.username
         super(User, self).save(*args, **kwargs)
 
 
@@ -74,8 +83,17 @@ class UserToken(models.Model):
 
     def __str__(self):
         return f'{self.token}, {self.token_type}'
-    
-    @classmethod 
+
+    def generate_token(self):
+        return binascii.hexlify(os.urandom(16)).decode()
+
+    def save(self, *args, **kwargs):
+        if self._state.adding and (not self.token or
+                                   UserToken.objects.filter(token=self.token).exists()):
+            self.token = self.generate_token()
+        super().save(*args, **kwargs)
+
+    @classmethod
     def get_token_from_str(cls, token_value: str, token_owner: str):
         return cls.objects.get(token=token_value, token_owner=token_owner)
 

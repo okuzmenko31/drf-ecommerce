@@ -2,15 +2,10 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from .models import User, UserBonusesBalance
-from .utils import TokenMixin, ConfirmationMailMixin, TokenTypes
 from rest_framework.authtoken.models import Token
 
 
-class RegistrationSerializer(TokenMixin,
-                             ConfirmationMailMixin,
-                             serializers.Serializer):
-    token_type = TokenTypes.SIGNUP
-    html_message_template = 'users/confirm_email_message.html'
+class RegistrationSerializer(serializers.Serializer):
 
     email = serializers.EmailField(required=True,
                                    validators=[UniqueValidator(queryset=User.objects.all())])
@@ -25,7 +20,8 @@ class RegistrationSerializer(TokenMixin,
         if attrs['password1'] != attrs['password']:
             raise serializers.ValidationError('Password mismatch.')
         if User.objects.filter(email=attrs['email']).exists():
-            raise serializers.ValidationError('User with this email is already exists!')
+            raise serializers.ValidationError(
+                'User with this email is already exists!')
         return attrs
 
     def create(self, validated_data):
@@ -35,8 +31,6 @@ class RegistrationSerializer(TokenMixin,
         user.set_password(password)
         user.save()
         Token.objects.create(user=user)  # creating authentication token
-        self.token_owner = email
-        self.send_confirmation_mail(email, self.get_token())
         return user
 
 
@@ -60,13 +54,15 @@ class LoginSerializer(serializers.Serializer):
 class ChangeEmailSerializer(serializers.Serializer):
     email = serializers.EmailField(label='New E-mail',
                                    write_only=True,
-                                   validators=[UniqueValidator(queryset=User.objects.all())],
+                                   validators=[UniqueValidator(
+                                       queryset=User.objects.all())],
                                    required=True)
 
     def validate(self, attrs):
         email = attrs['email']
         if User.objects.filter(email=email).exists():
-            raise serializers.ValidationError('User with this email is already exists')
+            raise serializers.ValidationError(
+                'User with this email is already exists')
         return attrs
 
 
@@ -78,7 +74,8 @@ class SendPasswordResetMailSerializer(serializers.Serializer):
         try:
             User.objects.get(email=email)
         except User.DoesNotExist:
-            raise serializers.ValidationError('No such user with this email address!')
+            raise serializers.ValidationError(
+                'No such user with this email address!')
         return attrs
 
 
@@ -93,8 +90,7 @@ class PasswordResetSerializer(serializers.Serializer):
     def validate(self, attrs):
         password = attrs['password']
         password1 = attrs['password1']
-        request = self.context.get('request')
-        email = request.query_params.get('email', None)
+        email = self.context.get('email')
 
         if password1 != password:
             raise serializers.ValidationError('Password mismatch')
@@ -102,9 +98,11 @@ class PasswordResetSerializer(serializers.Serializer):
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            raise serializers.ValidationError('No such user with this email address')
+            raise serializers.ValidationError(
+                'No such user with this email address')
         if user.check_password(password):
-            raise serializers.ValidationError('New password must not be the same as the old one')
+            raise serializers.ValidationError(
+                'New password must not be the same as the old one')
         user.set_password(password)
         user.save()
         return attrs
