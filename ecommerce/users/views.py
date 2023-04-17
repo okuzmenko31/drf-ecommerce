@@ -13,7 +13,7 @@ from .serializers import (RegistrationSerializer,
 from .permissions import IsNotAuthenticated
 from rest_framework.views import APIView
 from .models import User, UserToken, UserBonusesBalance
-from .utils import TokenTypes, AuthTokenMixin
+from .utils import TokenTypes, AuthTokenMixin, get_token_data
 from django.contrib.auth import logout
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import viewsets
@@ -47,7 +47,7 @@ class ConfirmEmailAPIView(AuthTokenMixin,
     def get(self, *args, **kwargs):
         token = self.kwargs.pop('token')
         email = self.kwargs.pop('email')
-        token_data = self.get_token_data(token, email)
+        token_data = get_token_data(token, email)
         if token_data.token:
             user = User.objects.get(email=email)
             user.is_active = True
@@ -122,7 +122,7 @@ class ChangeEmailAPIView(AuthTokenMixin,
         serializer.is_valid(raise_exception=True)
         email = self.request.data['email']
         tokenized_mail_message = self.send_tokenized_mail(email)
-        return Response({'success': tokenized_mail_message})
+        return Response({'success': tokenized_mail_message}, status=status.HTTP_200_OK)
 
 
 class ChangeEmailConfirmAPIView(AuthTokenMixin,
@@ -134,7 +134,7 @@ class ChangeEmailConfirmAPIView(AuthTokenMixin,
     def get(self, *args, **kwargs):
         token = kwargs.pop('token')
         new_email = kwargs.pop('email')
-        token_data = self.get_token_data(token, new_email)
+        token_data = get_token_data(token, new_email)
         if token_data.token:
             user = self.request.user
             user.email = new_email
@@ -169,7 +169,7 @@ class PasswordResetAPIView(AuthTokenMixin,
     def get(self, *args, **kwargs):
         token = self.kwargs.pop('token')
         email = self.kwargs.pop('email')
-        token_data = self.get_token_data(token, email)
+        token_data = get_token_data(token, email)
         if token_data.token:
             return Response({'message': 'Password reset page. Write new password.'},
                             status=status.HTTP_200_OK)
@@ -181,7 +181,7 @@ class PasswordResetAPIView(AuthTokenMixin,
     def post(self, *args, **kwargs):
         token = self.kwargs.pop('token')
         email = self.kwargs.pop('email')
-        token_data = self.get_token_data(token, email)
+        token_data = get_token_data(token, email)
         if token_data.token:
             serializer = PasswordResetSerializer(data=self.request.data,
                                                  context={'email': kwargs['email']})

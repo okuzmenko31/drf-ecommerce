@@ -1,20 +1,17 @@
-import binascii
-import os
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from .models import UserToken, User
-from rest_framework import status
-from typing import NamedTuple, Optional, Any
+from typing import NamedTuple, Optional
 
 MESSAGES = {
     'token_miss_error': ('This token does not exist or belongs '
                          'to another user!'),
-    'token_expired_error': ('Signature expired'),
-    'no_user': ('No such user with this email address!'),
-    'complete_registration': ('Ecommerce - complete registration.'),
-    'complete_email_changing': ('Ecommerce - complete changing email'),
-    'complete_password_reset': ('Ecommerce - complete password reset'),
+    'token_expired_error': 'Signature expired',
+    'no_user': 'No such user with this email address!',
+    'complete_registration': 'Ecommerce - complete registration.',
+    'complete_email_changing': 'Ecommerce - complete changing email',
+    'complete_password_reset': 'Ecommerce - complete password reset',
     'registration_mail_sent': ('Mail with registration link has '
                                'been sent to your email.'),
     'email_changing_sent': ('Mail with email changing confirmation '
@@ -79,7 +76,7 @@ class AuthTokenMixin(MailContextMixin):
     token_type = None
     html_message_template = None
 
-    def create_token(self, email: str) -> TokenData:
+    def _create_token(self, email: str) -> TokenData:
         if not UserToken.objects.filter(token_owner=email,
                                         token_type=self.token_type).exists():
             token = UserToken.objects.create(token_owner=email,
@@ -96,7 +93,7 @@ class AuthTokenMixin(MailContextMixin):
 
     def send_tokenized_mail(self, email: str) -> str:
         mail_context = self.get_context(token_type=self.token_type)
-        token_data = self.create_token(email)
+        token_data = self._create_token(email)
 
         if token_data.error:
             return token_data.error
@@ -118,12 +115,13 @@ class AuthTokenMixin(MailContextMixin):
                   html_message=html_msg)
         return mail_context['success_message']
 
-    def get_token_data(self, token: str, email: str) -> TokenData:
-        try:
-            token = UserToken.objects.get(token=token,
-                                          token_owner=email)
-            if token.expired:
-                return TokenData(error=MESSAGES['token_expired_error'])
-            return TokenData(token=token)
-        except UserToken.DoesNotExist:
-            return TokenData(error=MESSAGES['token_miss_error'])
+
+def get_token_data(token: str, email: str) -> TokenData:
+    try:
+        token = UserToken.objects.get(token=token,
+                                      token_owner=email)
+        if token.expired:
+            return TokenData(error=MESSAGES['token_expired_error'])
+        return TokenData(token=token)
+    except UserToken.DoesNotExist:
+        return TokenData(error=MESSAGES['token_miss_error'])

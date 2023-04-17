@@ -6,7 +6,6 @@ from rest_framework.authtoken.models import Token
 
 
 class RegistrationSerializer(serializers.Serializer):
-
     email = serializers.EmailField(required=True,
                                    validators=[UniqueValidator(queryset=User.objects.all())])
     password = serializers.CharField(write_only=True,
@@ -41,7 +40,7 @@ class LoginSerializer(serializers.Serializer):
     def validate(self, attrs):
         try:
             user = User.objects.get(email=attrs['email'])
-            if user.auth_token:
+            if Token.objects.filter(user=user).exists():
                 user.auth_token.delete()
             Token.objects.create(user=user)  # creating authentication token
             if not user.check_password(attrs['password']):

@@ -3,6 +3,7 @@ import os
 from django.db import models
 from .managers import UserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from rest_framework.authtoken.models import Token
 
 
 class User(PermissionsMixin, AbstractBaseUser):
@@ -44,8 +45,7 @@ class User(PermissionsMixin, AbstractBaseUser):
 
     def save(self, *args, **kwargs):
         if self._state.adding and (
-                not self.username or User.objects.filter(
-                    username=self.username).exists()
+                not self.username or User.objects.filter(username=self.username).exists()
         ):
             email = self.email
             self.username = User.objects.generate_username(email)
