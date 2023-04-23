@@ -9,3 +9,4 @@ TODO
 *.sqlite3
 celery-beat-schedule
 celery-beat-schedule.db
+*.Ds_Store

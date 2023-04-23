@@ -12,37 +12,37 @@ class ProductDescription(models.Model):
         verbose_name_plural = 'Descriptions'
 
     def __str__(self):
-        return f'Description of: {self.product.name}'
+        return f'Description of: {self.products.name}'
 
 
-class ProductCharactheristicsCategory(models.Model):
+class ProductCharacteristicsCategory(models.Model):
     name = models.CharField(max_length=200,
                             verbose_name='Name',
                             unique=True)
 
     class Meta:
         verbose_name = 'category'
-        verbose_name_plural = 'Charactherisctics category'
+        verbose_name_plural = 'Characteristics category'
 
     def __str__(self):
-        return f'Charactherisctics category: {self.name}'
+        return f'Characteristics category: {self.name}'
 
 
-class ProductCharactheristics(models.Model):
-    charactheristic_category = models.ForeignKey(ProductCharactheristicsCategory,
+class ProductCharacteristics(models.Model):
+    characteristics_category = models.ForeignKey(ProductCharacteristicsCategory,
                                                  on_delete=models.CASCADE,
                                                  verbose_name='Category',
                                                  blank=True,
                                                  null=True,
-                                                 related_name='charactherisctics')
+                                                 related_name='characteristics')
     product = models.ForeignKey('Products',
                                 on_delete=models.CASCADE,
                                 verbose_name='Product',
-                                related_name='charactheristics',
+                                related_name='characteristics',
                                 null=False)
     name = models.CharField(blank=True,
                             null=True,
-                            verbose_name='Charactheristic name')
+                            verbose_name='characteristics name')
     value = models.CharField(max_length=200,
                              verbose_name='Value')
 
@@ -83,14 +83,15 @@ class Products(models.Model):
     rating = models.DecimalField(max_digits=2,
                                  decimal_places=1,
                                  verbose_name='Rating')
-    
+
     class Meta:
         verbose_name = 'product'
         verbose_name_plural = 'Products'
-    
+
     def __str__(self):
         return f'{self.name}'
-    
+
+
 class ProductPhotos(models.Model):
     product = models.ForeignKey(Products,
                                 on_delete=models.CASCADE,
@@ -100,10 +101,10 @@ class ProductPhotos(models.Model):
                               verbose_name='Product photos',
                               blank=True,
                               null=True)
-    
+
     class Meta:
         verbose_name = 'photo'
         verbose_name_plural = 'Photos'
-        
+
     def __str__(self):
         return f'Photo of: {self.product.name}'
