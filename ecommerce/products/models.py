@@ -1,8 +1,27 @@
 from django.db import models
 from categories.models import Category
+from .services import get_discount
+from django.utils.text import slugify
+
+
+class ProductDescriptionCategory(models.Model):
+    name = models.CharField(verbose_name='Description category name',
+                            unique=True)
+
+    class Meta:
+        verbose_name = 'category'
+        verbose_name_plural = 'Products descriptions categories'
+
+    def __str__(self):
+        return f'Description category: {self.name}'
 
 
 class ProductDescription(models.Model):
+    description_category = models.ForeignKey(ProductDescriptionCategory,
+                                             on_delete=models.CASCADE,
+                                             blank=True,
+                                             null=True,
+                                             verbose_name='Description category')
     description = models.TextField(blank=True,
                                    null=True,
                                    verbose_name='Description')
@@ -29,6 +48,10 @@ class ProductCharacteristicsCategory(models.Model):
 
 
 class ProductCharacteristics(models.Model):
+    """
+    Model of characteristics of any product.
+    For example: 'Model: MacBook Air 13 2020' - this is one characteristic.
+    """
     characteristics_category = models.ForeignKey(ProductCharacteristicsCategory,
                                                  on_delete=models.CASCADE,
                                                  verbose_name='Category',
@@ -68,7 +91,9 @@ class Products(models.Model):
     description = models.ForeignKey(ProductDescription,
                                     on_delete=models.CASCADE,
                                     verbose_name='Description',
-                                    related_name='products')
+                                    related_name='products',
+                                    blank=True,
+                                    null=True)
     photo = models.ImageField(upload_to='images/products/',
                               verbose_name='Photo',
                               blank=True,
@@ -82,7 +107,8 @@ class Products(models.Model):
                             verbose_name='Slug')
     rating = models.DecimalField(max_digits=2,
                                  decimal_places=1,
-                                 verbose_name='Rating')
+                                 verbose_name='Rating',
+                                 default=0)
 
     class Meta:
         verbose_name = 'product'
@@ -90,6 +116,19 @@ class Products(models.Model):
 
     def __str__(self):
         return f'{self.name}'
+
+    def save(self, *args, **kwargs):
+        if self.slug is None or self.slug != slugify(self.name):
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    @property
+    def price_with_discount(self):
+        """
+        Returns calculated price with discount.
+        """
+        price_with_discount = get_discount(self.price, self.discount)
+        return price_with_discount
 
 
 class ProductPhotos(models.Model):
