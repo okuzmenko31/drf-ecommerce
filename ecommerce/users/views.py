@@ -13,7 +13,7 @@ from .serializers import (RegistrationSerializer,
 from .permissions import IsNotAuthenticated
 from rest_framework.views import APIView
 from .models import User, UserToken, UserBonusesBalance
-from .utils import TokenTypes, AuthTokenMixin, get_token_data
+from .token import TokenTypes, AuthTokenMixin, get_token_data
 from django.contrib.auth import logout
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import viewsets

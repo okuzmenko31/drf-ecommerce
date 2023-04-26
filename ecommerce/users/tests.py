@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase, APIClient
 from users.models import User, UserToken
-from users.utils import AuthTokenMixin, get_token_data, TokenData, MESSAGES
+from users.token import AuthTokenMixin, get_token_data, TokenData, MESSAGES
 
 
 class UserTokenTests(TestCase):
