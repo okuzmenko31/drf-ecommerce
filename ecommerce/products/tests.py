@@ -39,7 +39,7 @@ class TestVariations(ProductVariationsMixin,
 
     def test_related_variants(self):
         """
-        Complete this test.
+        TODO: Complete this test.
         """
         response = self.get_related_variations(self.first_product.id)
         expected_result = ProductVariations.objects.filter(variation_category__in=self.__variations_categories).exclude(

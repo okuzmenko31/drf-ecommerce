@@ -21,3 +21,15 @@ class ProductVariationsAPIView(ProductVariationsMixin,
 
     def get_queryset(self):
         return self.get_related_variations(product_id=self.kwargs['product_id'])
+
+
+class ProductVariationsByParentAPIView(ProductVariationsAPIView):
+    """
+    Endpoint for returning variations of product,
+    but filtered by parent_id.
+    'parent_id' - id of ParentOfVariationCategory model instance
+    """
+
+    def get_queryset(self):
+        return self.get_related_variations_by_parent(product_id=self.kwargs['product_id'],
+                                                     parent_id=self.kwargs['parent_id'])

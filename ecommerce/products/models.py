@@ -3,6 +3,7 @@ from categories.models import Category
 from .services import get_discount
 from django.utils.text import slugify
 from django.urls import reverse
+from django.utils.text import slugify
 
 
 class ProductDescriptionCategory(models.Model):
@@ -151,7 +152,43 @@ class ProductPhotos(models.Model):
         return f'Photo of: {self.product.name}'
 
 
+class ParentOfVariationCategory(models.Model):
+    """
+    This model if for filtering product
+    variations. For example, if product
+    have memory and color variations, you
+    can filter and show only memory variations.
+    """
+    name = models.CharField(max_length=255,
+                            verbose_name='Name')
+    slug = models.SlugField(unique=True,
+                            blank=True,
+                            null=True)
+
+    class Meta:
+        verbose_name = 'variation parent category'
+        verbose_name_plural = 'Parents of variations categories'
+
+    def __str__(self):
+        return f'{self.name} - Parent category'
+
+    def save(self, *args, **kwargs):
+        if self._state.adding and not self.slug:
+            self.slug = slugify(self.name.replace('category', ''))
+        super().save(*args, **kwargs)
+
+
 class VariationCategory(models.Model):
+    """
+    This is model of variations categories.
+    For example: 'Memory 128GB'.
+    """
+    parent = models.ForeignKey(ParentOfVariationCategory,
+                               on_delete=models.SET_NULL,
+                               blank=True,
+                               null=True,
+                               verbose_name='Parent',
+                               related_name='child_variation_categories')
     name = models.CharField(max_length=250,
                             verbose_name='Variation category name',
                             unique=True)

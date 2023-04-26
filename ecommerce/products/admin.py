@@ -6,7 +6,8 @@ from .models import (Products,
                      ProductCharacteristicsCategory,
                      ProductPhotos,
                      VariationCategory,
-                     ProductVariations)
+                     ProductVariations,
+                     ParentOfVariationCategory)
 from django.utils.safestring import mark_safe
 from django.forms.models import inlineformset_factory
 
@@ -47,3 +48,4 @@ class VariationCategoryAdmin(admin.ModelAdmin):
 
 
 admin.site.register(ProductVariations)
+admin.site.register(ParentOfVariationCategory)

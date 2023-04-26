@@ -28,3 +28,13 @@ class ProductVariationsMixin:
         variations = ProductVariations.objects.filter(variation_category__in=self.__variations_categories).exclude(
             product=product)
         return variations
+
+    def get_related_variations_by_parent(self, product_id: int, parent_id: int) -> QuerySet[ProductVariations]:
+        """
+        This method is similar to 'get_related_variations' method,
+        but returns filtered variations by provided parent_id.
+        'parent_id' - id of ParentOfVariationCategory model instance.
+        """
+        variations = self.get_related_variations(product_id)
+        variations_by_parent = variations.filter(variation_category__parent_id=parent_id)
+        return variations_by_parent
