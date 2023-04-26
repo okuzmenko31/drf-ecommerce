@@ -2,6 +2,7 @@ from django.db import models
 from categories.models import Category
 from .services import get_discount
 from django.utils.text import slugify
+from django.urls import reverse
 
 
 class ProductDescriptionCategory(models.Model):
@@ -102,7 +103,8 @@ class Products(models.Model):
                                    verbose_name='Discount(Optional)')
     article = models.CharField(max_length=8,
                                verbose_name='Article',
-                               blank=True)
+                               blank=True,
+                               null=True)
     slug = models.SlugField(unique=True,
                             verbose_name='Slug')
     rating = models.DecimalField(max_digits=2,
@@ -147,3 +149,58 @@ class ProductPhotos(models.Model):
 
     def __str__(self):
         return f'Photo of: {self.product.name}'
+
+
+class VariationCategory(models.Model):
+    name = models.CharField(max_length=250,
+                            verbose_name='Variation category name',
+                            unique=True)
+    value = models.CharField(max_length=200,
+                             verbose_name='Value')
+    slug = models.SlugField(unique=True,
+                            blank=True,
+                            null=True)
+
+    class Meta:
+        verbose_name = 'category'
+        verbose_name_plural = 'Variations categories'
+
+    def __str__(self):
+        return f'Variation category: {self.name}'
+
+    def save(self, *args, **kwargs):
+        if self.slug is None or self.slug != slugify(self.name):
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+
+class ProductVariations(models.Model):
+    variation_category = models.ForeignKey(VariationCategory,
+                                           on_delete=models.CASCADE,
+                                           verbose_name='Variation category')
+    product = models.ForeignKey(Products,
+                                on_delete=models.CASCADE,
+                                verbose_name='Product',
+                                blank=True,
+                                null=True,
+                                related_name='variations')
+
+    class Meta:
+        verbose_name = 'variation'
+        verbose_name_plural = 'Product variations'
+        unique_together = ('product', 'variation_category')
+
+    def __str__(self):
+        return f'Variation category: {self.variation_category.name}, Product: {self.product.name}'
+
+    @property
+    def variation_category_name(self):
+        return self.variation_category.name
+
+    @property
+    def product_name(self):
+        return self.product.name
+
+    @property
+    def product_link(self):
+        return reverse('products-detail', kwargs={'pk': self.product.pk})

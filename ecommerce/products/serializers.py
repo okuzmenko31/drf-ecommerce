@@ -4,7 +4,8 @@ from .models import (Products,
                      ProductDescription,
                      ProductCharacteristics,
                      ProductCharacteristicsCategory,
-                     ProductPhotos)
+                     ProductPhotos,
+                     ProductVariations)
 
 
 class ProductsSerializer(serializers.ModelSerializer):
@@ -15,3 +16,9 @@ class ProductsSerializer(serializers.ModelSerializer):
         model = Products
         fields = ('id', 'name', 'category', 'price', 'price_with_discount', 'description',
                   'photo', 'discount', 'article', 'rating')
+
+
+class ProductVariationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductVariations
+        fields = ('id', 'variation_category_name', 'product_name', 'product_link')
