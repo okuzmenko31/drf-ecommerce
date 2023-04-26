@@ -38,6 +38,11 @@ class TokenTypes:
 
 
 class MailContextMixin:
+    """
+    Mixin which creates context for mail and
+    returns success message the content of which
+    will depend on the type of token.
+    """
     __subject = None
     __message = ''
     __success_message = None
@@ -61,6 +66,10 @@ class MailContextMixin:
             cls.__success_message = MESSAGES['password_reset_sent']
 
     def get_context(self, token_type):
+        """
+        Returns context with mail subject, message and
+        success message for user that mail has been sent.
+        """
         self._set_subject(token_type)
         self._set_success_message(token_type)
 
@@ -73,16 +82,41 @@ class MailContextMixin:
 
 
 class AuthTokenMixin(MailContextMixin):
+    """
+    Mixin for creating and sending tokenized email.
+
+    This mixin provides methods for creating and sending tokens via email for
+    various token types. Available token types are:
+        - SignUp ['su']
+        - Change email ['ce']
+        - Password reset ['pr']
+
+    Attributes:
+        token_type (str): The token type to create.
+        html_message_template (str): The path to the HTML message template.
+    """
     token_type = None
     html_message_template = None
 
     def _create_token(self, email: str) -> TokenData:
+        """
+        Method which creates a new token for the given email.
+
+        Args:
+            email (str): The email address to associate with the token.
+
+        Returns:
+            TokenData: The TokenData object with either the token or an error message.
+        """
+
         if not UserToken.objects.filter(token_owner=email,
                                         token_type=self.token_type).exists():
             token = UserToken.objects.create(token_owner=email,
                                              token_type=self.token_type)
         else:
             try:
+                # If a token already exists, it will be deleted
+                # and a new one will be created.
                 User.objects.get(token_owner=email,
                                  token_type=self.token_type).delete()
                 token = UserToken.objects.create(token_owner=email,
@@ -92,6 +126,20 @@ class AuthTokenMixin(MailContextMixin):
         return TokenData(token=token)
 
     def send_tokenized_mail(self, email: str) -> str:
+        """
+        Method that calls the `_create_token` method to generate
+        a token for the given email address, creates a context
+        for an email and sends it to the user's email address.
+        Returns a success message upon successful email delivery
+        or an error message if an error occurs.
+
+        Args:
+            email (str): The email address to which the token email will be sent.
+
+        Returns:
+            str: A success message upon successful email delivery
+                 or an error message if an error occurs.
+        """
         mail_context = self.get_context(token_type=self.token_type)
         token_data = self._create_token(email)
 
@@ -117,6 +165,19 @@ class AuthTokenMixin(MailContextMixin):
 
 
 def get_token_data(token: str, email: str) -> TokenData:
+    """
+    Function for getting token data.
+
+    Args:
+        token (str): The token string to retrieve.
+        email (str): The email of the token owner.
+
+    Returns:
+        TokenData: The TokenData object with either the token or an error message.
+
+    Raises:
+        Token.DoesNotExist: If the token does not exist.
+    """
     try:
         token = UserToken.objects.get(token=token,
                                       token_owner=email)
