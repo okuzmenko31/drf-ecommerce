@@ -20,6 +20,7 @@ class ProductVariationsAPIView(ProductVariationsMixin,
     serializer_class = ProductVariationsSerializer
 
     def get_queryset(self):
+        self.reset_related_variations()
         return self.get_related_variations(product_id=self.kwargs['product_id'])
 
 

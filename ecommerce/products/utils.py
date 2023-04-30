@@ -1,11 +1,20 @@
 from .models import Products, ProductVariations
-from django.shortcuts import get_object_or_404
 from django.db.models import QuerySet
 
 
 class ProductVariationsMixin:
-    __product_variations_categories = []
-    __variations_categories = []
+    _related_variations = []
+
+    def reset_related_variations(self):
+        """
+        This method helps to avoid bug with related variations.
+        If you don't reset variations before getting them,
+        your list with related variations won't be updated.
+        It means that every time when you will get variations of some
+        product, and after you will try to get variations of another,
+        you will get mixed variations of these products.
+        """
+        self._related_variations = []
 
     def get_related_variations(self, product_id: int) -> QuerySet[ProductVariations]:
         """
@@ -18,15 +27,17 @@ class ProductVariationsMixin:
         this method, your variations and variation
         categories may be different.
         """
-        product = get_object_or_404(Products, id=product_id)
-        for product_variation in product.variations.all():
-            self.__product_variations_categories.append(product_variation.variation_category)
-        products = Products.objects.filter(category=product.category)
-        for item in products:
-            for variation in item.variations.all().exclude(variation_category__in=self.__product_variations_categories):
-                self.__variations_categories.append(variation.variation_category)
-        variations = ProductVariations.objects.filter(variation_category__in=self.__variations_categories).exclude(
-            product=product)
+        product = Products.objects.select_related('category').get(id=product_id)
+        related_variations = ProductVariations.objects.select_related('product', 'variation_category',
+                                                                      'product__category').filter(
+            variation_category__in=product.variations.select_related('variation_category').values('variation_category'),
+            product__category=product.category).exclude(product=product).distinct('product')
+        for variation in related_variations:
+            another_variations = variation.product.variations.select_related('variation_category').exclude(
+                variation_category=variation.variation_category)
+            self._related_variations.extend(list(another_variations.values_list('id', flat=True)))
+        variations = ProductVariations.objects.select_related('product', 'variation_category').filter(
+            id__in=self._related_variations).exclude(product=product)
         return variations
 
     def get_related_variations_by_parent(self, product_id: int, parent_id: int) -> QuerySet[ProductVariations]:
@@ -36,5 +47,6 @@ class ProductVariationsMixin:
         'parent_id' - id of ParentOfVariationCategory model instance.
         """
         variations = self.get_related_variations(product_id)
-        variations_by_parent = variations.filter(variation_category__parent_id=parent_id)
+        variations_by_parent = variations.filter(variation_category__parent_id=parent_id). \
+            select_related('product', 'product__category')
         return variations_by_parent

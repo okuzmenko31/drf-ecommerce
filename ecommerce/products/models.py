@@ -1,7 +1,6 @@
 from django.db import models
 from categories.models import Category
 from .services import get_discount
-from django.utils.text import slugify
 from django.urls import reverse
 from django.utils.text import slugify
 
