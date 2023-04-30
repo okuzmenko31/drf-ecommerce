@@ -10,7 +10,7 @@ class ProductVariationsMixin:
         This method helps to avoid bug with related variations.
         If you don't reset variations before getting them,
         your list with related variations won't be updated.
-        It means that every time when you will get variations of some
+        It means that every time when you will try to get variations of some
         product, and after you will try to get variations of another,
         you will get mixed variations of these products.
         """
@@ -26,6 +26,7 @@ class ProductVariationsMixin:
         This is only example for easiest understanding of
         this method, your variations and variation
         categories may be different.
+        TODO: Optimize queries
         """
         product = Products.objects.select_related('category').get(id=product_id)
         related_variations = ProductVariations.objects.select_related('product', 'variation_category',
