@@ -18,6 +18,7 @@ from django.contrib.auth import logout
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import viewsets
 from rest_framework import mixins
+from basket.views import get_or_create_basket
 
 
 class UserRegistrationAPIView(AuthTokenMixin,
@@ -52,6 +53,7 @@ class ConfirmEmailAPIView(AuthTokenMixin,
             user = User.objects.get(email=email)
             user.is_active = True
             user.save()
+            get_or_create_basket(self.request, user)
             token_data.token.delete()
             return Response({'success': 'You successfully confirmed your email!'},
                             status=status.HTTP_200_OK)
@@ -85,6 +87,7 @@ class LoginAPIView(APIView):
                 # have related_name="auth_token" to user instance.
                 # you can check it here 'rest_framework.authtoken.models'.
             }
+            get_or_create_basket(self.request, user)
             return Response(data=data, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Provided email or password is wrong!'},

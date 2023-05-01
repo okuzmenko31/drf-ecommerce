@@ -1,3 +1,4 @@
+import copy
 from django.conf import settings
 from products.models import Products
 from basket.models import BasketItems, Basket
@@ -52,12 +53,15 @@ class SessionBasket:
     def __iter__(self):
         basket_product_ids = self.basket.keys()
         products = Products.objects.filter(id__in=basket_product_ids)
-        basket = self.basket.copy()
+        basket = copy.deepcopy(self.basket)
 
         for product in products:
             basket[str(product.id)]['product'] = product
         for item in basket.values():
-            item['total_price'] = item['price'] * item['quantity']
+            if item['product'].discount:
+                item['total_price'] = item['price_with_discount'] * item['quantity']
+            else:
+                item['total_price'] = item['price'] * item['quantity']
             yield item
 
     def __len__(self):
@@ -65,12 +69,12 @@ class SessionBasket:
         return sum(item['quantity'] for item in self.basket.values())
 
     @property
-    def basket_total_price(self):
+    def total_amount(self):
         """
         Getting overall total price of all
         products in the cart
         """
-        return sum(item['price_with_discount'] for item in self.basket.values())
+        return sum(item['price'] for item in self.basket.values())
 
     def clear(self):
         del self.session[settings.BASKET_SESSION]
@@ -130,18 +134,17 @@ def basket_item_add_quantity(basket, product):
     basket_item_data = check_basket_item(basket, product)
     if basket_item_data.item and basket_item_data.exist:
         basket_item_data.item.quantity += 1
-        basket_item_data.item.save()
-        return True
-    return False
+    basket_item_data.item.save()
 
 
 def basket_item_minus_quantity(basket, product):
     basket_item_data = check_basket_item(basket, product)
     if basket_item_data.item and basket_item_data.exist:
-        basket_item_data.item.quantity -= 1
-        basket_item_data.item.save()
-        return True
-    return False
+        if basket_item_data.item.quantity > 0:
+            basket_item_data.item.quantity -= 1
+            basket_item_data.item.save()
+        else:
+            basket_remove_item(basket, product)
 
 
 def clear_basket(basket):

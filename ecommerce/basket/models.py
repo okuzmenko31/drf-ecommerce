@@ -1,14 +1,15 @@
 from django.db import models
-from users.models import User
 from products.models import Products
+from users.models import User
 
 
 class Basket(models.Model):
-    user = models.ForeignKey(User,
-                             on_delete=models.CASCADE,
-                             verbose_name='User',
-                             blank=True,
-                             null=True)
+    user = models.OneToOneField(User,
+                                on_delete=models.CASCADE,
+                                verbose_name='User',
+                                blank=True,
+                                null=True,
+                                related_name='basket')
     created_at = models.DateTimeField(auto_now_add=True,
                                       verbose_name='Created at')
 
@@ -18,6 +19,10 @@ class Basket(models.Model):
 
     def __str__(self):
         return f'Basket of {self.user.username}'
+
+    @property
+    def total_amount(self):
+        return sum(item.total_price for item in self.items.all())
 
 
 class BasketItems(models.Model):
@@ -39,3 +44,10 @@ class BasketItems(models.Model):
 
     def __str__(self):
         return f'Basket item {self.product.name}'
+
+    def save(self, *args, **kwargs):
+        if self.product.discount:
+            self.total_price = self.product.price_with_discount * self.quantity
+        else:
+            self.total_price = self.product.price * self.quantity
+        super().save(*args, **kwargs)
