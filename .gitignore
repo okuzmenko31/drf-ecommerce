@@ -10,3 +10,5 @@ TODO
 celery-beat-schedule
 celery-beat-schedule.db
 *.Ds_Store
+*.log
+logging
