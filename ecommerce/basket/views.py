@@ -22,7 +22,7 @@ def get_or_create_basket(request, user):
 class BasketAPIView(BasketMixin, APIView):
 
     def get(self, *args, **kwargs):
-        data = self.get_basket(self.request)
+        data = self.get_basket_data(self.request)
         return Response(data=data, status=status.HTTP_200_OK)
 
 
