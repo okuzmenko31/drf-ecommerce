@@ -76,14 +76,16 @@ class BasketMixin:
             self.__basket = SessionBasket(request)
             basket_data = self.get_basket_data(self.__basket, session_basket=True)
             data = {'basket': basket_data,
-                    'total_amount': self.__basket.total_amount}
+                    'total_amount': self.__basket.total_amount,
+                    'total_quantity_of_products': len(self.__basket)}
         else:
             self.__basket, _ = Basket.objects.get_or_create(user=request.user)
             basket_data = self.get_basket_data(self.__basket, model_basket=True)
             basket_serializer = BasketSerializer(instance=self.__basket)
             data = {'basket': basket_serializer.data,
                     'items': basket_data,
-                    'total_amount': self.__basket.total_amount}
+                    'total_amount': self.__basket.total_amount,
+                    'total_quantity_of_products': self.__basket.total_quantity_of_products}
         return data
 
     def basket_operation(self, request, product=None):

@@ -49,3 +49,7 @@ class BasketItemMinusQuantityAPIView(OperationBasketAPIView):
 
 class BasketClearAPIView(OperationBasketAPIView):
     operation_type = BasketOperationTypes.basket_clear
+
+    def get(self, *args, **kwargs):
+        data = self.basket_operation(self.request)
+        return Response(data=data)

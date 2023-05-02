@@ -24,6 +24,10 @@ class Basket(models.Model):
     def total_amount(self):
         return sum(item.total_price for item in self.items.all())
 
+    @property
+    def total_quantity_of_products(self):
+        return sum(item.quantity for item in self.items.all())
+
 
 class BasketItems(models.Model):
     basket = models.ForeignKey(Basket,
