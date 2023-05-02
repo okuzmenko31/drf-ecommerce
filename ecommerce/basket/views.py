@@ -9,6 +9,14 @@ from rest_framework import status
 
 
 def get_or_create_basket(request, user):
+    """
+    This function is used to get the basket from
+    the session and create it in the database.
+
+    Args:
+        request (Request): The user's request.
+        user (User): User instance.
+    """
     basket = SessionBasket(request)
     user_basket, _ = Basket.objects.get_or_create(user=user)
     for item in basket:
@@ -27,6 +35,16 @@ class BasketAPIView(BasketMixin, APIView):
 
 
 class OperationBasketAPIView(BasketMixin, APIView):
+    """
+    This method is a parent class for other Basket
+    Operations API endpoints and is not used in URLs,
+    therefore it has no associated link. It defines the
+    operation_type attribute which is used to specify the type
+    of basket operation to perform. The get method calls
+    the basket_operation method of the BasketMixin class with
+    the request and product arguments to perform the specified
+    basket operation and returns the resulting data as a response.
+    """
     operation_type = BasketOperationTypes.basket_add
 
     def get(self, *args, **kwargs):

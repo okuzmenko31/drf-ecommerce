@@ -17,10 +17,21 @@ class BasketOperationTypes:
 
 
 class BasketMixin:
+    """
+    Mixin which do some operations with
+    session basket or with basket from db and
+    returns data with information about basket.
+
+    Mixin works with two types of basket:
+    Session basket and DB Basket.
+
+    If user is not authenticated, this mixin will be
+    working with Session basket, in other case with DB Basket.
+    """
     operation_type: Optional[str] = None
     __basket: Union[SessionBasket, Basket]
 
-    def basket_add_item(self, request, product):
+    def _basket_add_item(self, request, product):
         if not request.user.is_authenticated:
             self.__basket = SessionBasket(request)
             self.__basket.add(product)
@@ -28,7 +39,7 @@ class BasketMixin:
             self.__basket, _ = Basket.objects.get_or_create(user=request.user)
             basket_add_item(self.__basket, product)
 
-    def basket_add_item_quantity(self, request, product):
+    def _basket_add_item_quantity(self, request, product):
         if not request.user.is_authenticated:
             self.__basket = SessionBasket(request)
             self.__basket.add_quantity(product)
@@ -36,7 +47,7 @@ class BasketMixin:
             self.__basket, _ = Basket.objects.get_or_create(user=request.user)
             basket_item_add_quantity(self.__basket, product)
 
-    def basket_minus_item_quantity(self, request, product):
+    def _basket_minus_item_quantity(self, request, product):
         if not request.user.is_authenticated:
             self.__basket = SessionBasket(request)
             self.__basket.minus_quantity(product)
@@ -44,7 +55,7 @@ class BasketMixin:
             self.__basket, _ = Basket.objects.get_or_create(user=request.user)
             basket_item_minus_quantity(self.__basket, product)
 
-    def basket_remove_item(self, request, product):
+    def _basket_remove_item(self, request, product):
         if not request.user.is_authenticated:
             self.__basket = SessionBasket(request)
             self.__basket.remove(product)
@@ -52,7 +63,7 @@ class BasketMixin:
             self.__basket, _ = Basket.objects.get_or_create(user=request.user)
             basket_remove_item(self.__basket, product)
 
-    def basket_clear(self, request):
+    def _basket_clear(self, request):
         if not request.user.is_authenticated:
             self.__basket = SessionBasket(request)
             self.__basket.clear()
@@ -61,6 +72,17 @@ class BasketMixin:
             clear_basket(self.__basket)
 
     def get_basket_data(self, request):
+        """
+        This method checks whether the user is
+        authenticated or not, and based on that,
+        returns either Session Basket or DB Basket data.
+
+        Args:
+            request (Request): The user's request.
+
+        Returns:
+            data (dict): dictionary with information about basket.
+        """
         if not request.user.is_authenticated:
             self.__basket = SessionBasket(request)
             serializer = SessionBasketSerializer(self.__basket)
@@ -81,13 +103,21 @@ class BasketMixin:
         return data
 
     def basket_operation(self, request, product=None):
+        """
+        This method calls other methods for basket operations
+        depending on the specified operation_type.
+
+        Args:
+            request (Request): The user's request.
+            product (Products): The product on which the operation will be performed.
+        """
         if self.operation_type == BasketOperationTypes.basket_add:
-            self.basket_add_item(request, product)
+            self._basket_add_item(request, product)
         elif self.operation_type == BasketOperationTypes.item_add_quantity:
-            self.basket_add_item_quantity(request, product)
+            self._basket_add_item_quantity(request, product)
         elif self.operation_type == BasketOperationTypes.item_minus_quantity:
-            self.basket_minus_item_quantity(request, product)
+            self._basket_minus_item_quantity(request, product)
         elif self.operation_type == BasketOperationTypes.basket_clear:
-            self.basket_clear(request)
-        data = self.get_basket_data(request)
-        return data
+            self._basket_clear(request)
+
+        return self.get_basket_data(request)
