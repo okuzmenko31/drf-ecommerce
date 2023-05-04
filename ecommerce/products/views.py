@@ -1,6 +1,6 @@
 from .models import Products, ProductVariations
 from .serializers import ProductsSerializer, ProductVariationsSerializer
-from categories.permissions import IsAdminOrReadOnly
+from core.global_permissions import IsAdminOrReadOnly
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework import viewsets, generics, status
 from rest_framework.decorators import action

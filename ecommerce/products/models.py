@@ -78,12 +78,19 @@ class ProductCharacteristics(models.Model):
         return f'Description of: {self.product.name}'
 
 
+class AvailabilityStatuses:
+    in_stock = (1, 'in stock')
+    awaiting_arrival = (2, 'awaiting arrival')
+    low_in_stock = (3, 'low in stock')
+    out_of_stock = (4, 'out of stock')
+
+
 class Products(models.Model):
     AVAILABILITY_STATUSES = (
-        (1, 'in stock'),
-        (2, 'awaiting arrival'),
-        (3, 'low in stock'),
-        (4, 'out of stock')
+        AvailabilityStatuses.in_stock,
+        AvailabilityStatuses.awaiting_arrival,
+        AvailabilityStatuses.low_in_stock,
+        AvailabilityStatuses.out_of_stock
     )
     name = models.CharField(max_length=350,
                             verbose_name='Name')

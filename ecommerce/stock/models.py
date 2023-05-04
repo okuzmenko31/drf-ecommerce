@@ -36,3 +36,8 @@ class StockItems(models.Model):
     @property
     def product_price_with_discount(self):
         return self.product.price_with_discount
+
+    def save(self, *args, **kwargs):
+        self.product_article = self.product.article
+        self.product_category = self.product.category
+        super().save(*args, **kwargs)
