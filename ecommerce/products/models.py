@@ -79,6 +79,12 @@ class ProductCharacteristics(models.Model):
 
 
 class Products(models.Model):
+    AVAILABILITY_STATUSES = (
+        (1, 'in stock'),
+        (2, 'awaiting arrival'),
+        (3, 'low in stock'),
+        (4, 'out of stock')
+    )
     name = models.CharField(max_length=350,
                             verbose_name='Name')
     category = models.ForeignKey(Category,
@@ -105,6 +111,8 @@ class Products(models.Model):
                                verbose_name='Article',
                                blank=True,
                                null=True)
+    availability_status = models.IntegerField(default=1,
+                                              choices=AVAILABILITY_STATUSES)
     slug = models.SlugField(unique=True,
                             verbose_name='Slug')
     rating = models.DecimalField(max_digits=2,
