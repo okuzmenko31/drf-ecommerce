@@ -5,7 +5,8 @@ from .models import (Products,
                      ProductCharacteristics,
                      ProductCharacteristicsCategory,
                      ProductPhotos,
-                     ProductVariations)
+                     ProductVariations,
+                     AvailabilityStatuses)
 
 
 class ProductsSerializer(serializers.ModelSerializer):
@@ -20,14 +21,14 @@ class ProductsSerializer(serializers.ModelSerializer):
 
     def get_availability_status(self, obj):
         status = ''
-        if obj.availability_status == 1:
-            status = 'In stock'
-        elif obj.availability_status == 2:
-            status = 'Awaiting arrival'
-        elif obj.availability_status == 3:
-            status = 'Low in stock'
+        if obj.availability_status == AvailabilityStatuses.in_stock[0]:
+            status = AvailabilityStatuses.in_stock[1]
+        elif obj.availability_status == AvailabilityStatuses.low_in_stock[0]:
+            status = AvailabilityStatuses.low_in_stock[1]
+        elif obj.availability_status == AvailabilityStatuses.awaiting_arrival[0]:
+            status = AvailabilityStatuses.awaiting_arrival[1]
         else:
-            obj.availability_status = 'Out of stock'
+            obj.availability_status = AvailabilityStatuses.out_of_stock[1]
         return status
 
 

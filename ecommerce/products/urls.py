@@ -5,7 +5,7 @@ from .views import (ProductsViewSet,
                     ProductVariationsByParentAPIView)
 
 router = DefaultRouter()
-router.register(r'products', ProductsViewSet, basename='products')
+router.register(r'', ProductsViewSet, basename='products')
 
 urlpatterns = [
     path('', include(router.urls)),
