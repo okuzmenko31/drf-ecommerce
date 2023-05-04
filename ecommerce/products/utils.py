@@ -29,16 +29,17 @@ class ProductVariationsMixin:
         TODO: Optimize queries
         """
         product = Products.objects.select_related('category').get(id=product_id)
-        related_variations = ProductVariations.objects.select_related('product', 'variation_category',
-                                                                      'product__category').filter(
-            variation_category__in=product.variations.select_related('variation_category').values('variation_category'),
-            product__category=product.category).exclude(product=product).distinct('product')
+        related_variations = ProductVariations.objects.filter(
+            variation_category__in=product.variations.values('variation_category'),
+            product__category=product.category).select_related('product', 'variation_category',
+                                                               'product__category').exclude(product=product).distinct(
+            'product')
         for variation in related_variations:
             another_variations = variation.product.variations.select_related('variation_category').exclude(
-                variation_category=variation.variation_category)
-            self._related_variations.extend(list(another_variations.values_list('id', flat=True)))
-        variations = ProductVariations.objects.select_related('product', 'variation_category').filter(
-            id__in=self._related_variations).exclude(product=product)
+                variation_category=variation.variation_category).values_list('id', flat=True)
+            self._related_variations.extend(another_variations)
+        variations = ProductVariations.objects.filter(
+            id__in=self._related_variations).select_related('product', 'variation_category').exclude(product=product)
         return variations
 
     def get_related_variations_by_parent(self, product_id: int, parent_id: int) -> QuerySet[ProductVariations]:
