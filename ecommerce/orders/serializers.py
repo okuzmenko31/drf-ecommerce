@@ -5,6 +5,7 @@ from products.serializers import ProductsSerializer
 from users.serializers import UserShippingInfoSerializer
 from users.models import UserShippingInfo
 from basket.utils import BasketMixin, BasketOperationTypes
+from .utils import OrderSerializerMixin
 
 
 class OrderItemsSerializer(serializers.ModelSerializer):
@@ -19,9 +20,8 @@ class OrderItemsSerializer(serializers.ModelSerializer):
         return obj.order.order_id
 
 
-class OrderSerializer(BasketMixin, serializers.ModelSerializer):
-    operation_type = BasketOperationTypes.basket_clear
-
+class OrderSerializer(OrderSerializerMixin,
+                      serializers.ModelSerializer):
     shipping_info = UserShippingInfoSerializer()
 
     class Meta:
@@ -34,26 +34,12 @@ class OrderSerializer(BasketMixin, serializers.ModelSerializer):
         shipping_info_data = validated_data.pop('shipping_info')
         request = self.context.get('request')
         session_id = request.session.session_key
-        if request.user.is_authenticated:
-            shipping_info, _ = UserShippingInfo.objects.get_or_create(user=request.user,
-                                                                      defaults=shipping_info_data)
-        else:
-            shipping_info, _ = UserShippingInfo.objects.get_or_create(session_id=session_id,
-                                                                      defaults=shipping_info_data)
-        shipping_info.city = shipping_info_data['city']
-        shipping_info.post_office = shipping_info_data['post_office']
-        shipping_info.save()
+        self.request = request
 
+        shipping_info = self.get_user_shipping_info(shipping_info_data, session_id)
         order = Order.objects.create(shipping_info=shipping_info, **validated_data)
 
-        basket_data = self.get_basket_data(request)
-        for item in basket_data['items']:
-            try:
-                product = Products.objects.get(id=item['product'])
-            except (Exception,):
-                raise ValueError('Product does not exist')
-            OrderItems.objects.create(order=order, product=product,
-                                      quantity=item['quantity'], total_price=item['total_price'])
+        self.create_order_items(order)
 
         if request.user.is_authenticated:
             order.user = request.user
@@ -61,6 +47,5 @@ class OrderSerializer(BasketMixin, serializers.ModelSerializer):
         else:
             order.session_id = session_id
             order.save()
-
-        self.basket_operation(request)
+        self.create_payment_info(order)
         return order
