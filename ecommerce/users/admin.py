@@ -1,10 +1,15 @@
 from django.contrib import admin
-from .models import User, UserToken, UserBonusesBalance
+from .models import User, UserToken, UserBonusesBalance, UserShippingInfo
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 
 class UserBonusesBalanceTabularInline(admin.TabularInline):
     model = UserBonusesBalance
+
+
+@admin.register(UserShippingInfo)
+class UserShippingInfoAdmin(admin.ModelAdmin):
+    pass
 
 
 @admin.register(User)

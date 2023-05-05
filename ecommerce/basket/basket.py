@@ -23,11 +23,12 @@ class SessionBasket:
         product_id = str(product.id)
         if product_id not in self.basket:
             self.basket[product_id] = {
-                'quantity': 0,
+                'quantity': 1,
                 'price': product.price,
                 'price_with_discount': product.price_with_discount
             }
-        self.basket[product_id]['quantity'] += 1
+        else:
+            self.basket[product_id]['quantity'] += 1
         self.save()
 
     def remove(self, product):

@@ -108,3 +108,37 @@ class UserBonusesBalance(models.Model):
 
     def __str__(self):
         return f'{self.balance}$'
+
+
+class UserShippingInfo(models.Model):
+    user = models.OneToOneField(User,
+                                on_delete=models.CASCADE,
+                                verbose_name='User',
+                                related_name='shipping_info',
+                                blank=True,
+                                null=True)
+    session_id = models.CharField(max_length=10,
+                                  blank=True,
+                                  null=True)
+    name = models.CharField(max_length=180,
+                            verbose_name='Name')
+    surname = models.CharField(max_length=190,
+                               verbose_name='Surname')
+    patronymic = models.CharField(max_length=180,
+                                  verbose_name='Patronymic',
+                                  blank=True,
+                                  null=True)
+    email = models.EmailField(verbose_name='Email')
+    address = models.CharField(max_length=200,
+                               verbose_name='Address')
+    city = models.CharField(max_length=170,
+                            verbose_name='City')
+    post_office = models.CharField(max_length=450,
+                                   verbose_name='Post office')
+
+    class Meta:
+        verbose_name = 'shipping info'
+        verbose_name_plural = 'Shipping Infos'
+
+    def __str__(self):
+        return f'Shipping info of: {self.user.username}'

@@ -1,11 +1,13 @@
 from .basket import SessionBasket
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 from products.models import Products
 from django.shortcuts import get_object_or_404
 from .utils import BasketMixin, BasketOperationTypes
 from .models import Basket, BasketItems
 from rest_framework import status
+from .permissions import BasketLenMoreThanZeroPermission
 
 
 def get_or_create_basket(request, user):
@@ -28,6 +30,7 @@ def get_or_create_basket(request, user):
 
 
 class BasketAPIView(BasketMixin, APIView):
+    permission_classes = [BasketLenMoreThanZeroPermission, AllowAny]
 
     def get(self, *args, **kwargs):
         data = self.get_basket_data(self.request)
@@ -45,9 +48,8 @@ class OperationBasketAPIView(BasketMixin, APIView):
     the request and product arguments to perform the specified
     basket operation and returns the resulting data as a response.
     """
-    operation_type = BasketOperationTypes.basket_add
 
-    def get(self, *args, **kwargs):
+    def post(self, *args, **kwargs):
         product = get_object_or_404(Products, id=kwargs['product_id'])
         data = self.basket_operation(self.request, product)
         return Response(data=data)

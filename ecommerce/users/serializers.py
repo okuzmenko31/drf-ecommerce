@@ -1,8 +1,9 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from .models import User, UserBonusesBalance
+from .models import User, UserBonusesBalance, UserShippingInfo
 from rest_framework.authtoken.models import Token
+from orders.services import get_city_choices, get_nova_poshta_post_offices_choices
 
 
 class RegistrationSerializer(serializers.Serializer):
@@ -125,3 +126,18 @@ class UserBonusesSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserBonusesBalance
         fields = ('user', 'balance')
+
+
+class ChoiceFieldWithText(serializers.ChoiceField):
+    def to_representation(self, value):
+        return value
+
+
+class UserShippingInfoSerializer(serializers.ModelSerializer):
+    city = ChoiceFieldWithText(choices=get_city_choices())
+    post_office = ChoiceFieldWithText(choices=get_nova_poshta_post_offices_choices())
+
+    class Meta:
+        model = UserShippingInfo
+        fields = ('name', 'surname', 'patronymic', 'email',
+                  'address', 'city', 'post_office')
