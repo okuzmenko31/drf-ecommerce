@@ -26,9 +26,12 @@ class OrderSerializer(OrderSerializerMixin,
 
     class Meta:
         model = Order
-        fields = ('shipping_info', 'payment_method', 'delivery_method',
+        fields = ('id', 'shipping_info',
+                  'payment_method', 'delivery_method',
                   'coupon', 'activate_bonuses',
-                  'comment', 'create_account')
+                  'comment', 'create_account',
+                  'total_amount')
+        read_only_fields = ['total_amount']
 
     def create(self, validated_data):
         shipping_info_data = validated_data.pop('shipping_info')
