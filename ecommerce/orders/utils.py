@@ -1,9 +1,7 @@
 from basket.utils import BasketMixin, BasketOperationTypes
 from .models import Order, OrderItems
 from users.models import UserShippingInfo
-from payment.models import PaymentInfo
 from products.models import Products
-from django.utils import timezone
 
 
 class OrderSerializerMixin(BasketMixin):

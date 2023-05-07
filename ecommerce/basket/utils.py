@@ -37,7 +37,8 @@ class BasketMixin:
             self.__basket = SessionBasket(request)
             self.__basket.add(product)
         else:
-            self.__basket, _ = Basket.objects.get_or_create(user=request.user)
+            self.__basket, _ = Basket.objects.prefetch_related('items'). \
+                select_related('user').get_or_create(user=request.user)
             basket_add_item(self.__basket, product)
 
     def _basket_add_item_quantity(self, request, product):
@@ -46,7 +47,8 @@ class BasketMixin:
             self.__basket = SessionBasket(request)
             self.__basket.add_quantity(product)
         else:
-            self.__basket, _ = Basket.objects.get_or_create(user=request.user)
+            self.__basket, _ = Basket.objects.prefetch_related('items'). \
+                select_related('user').get_or_create(user=request.user)
             basket_item_add_quantity(self.__basket, product)
 
     def _basket_minus_item_quantity(self, request, product):
@@ -55,7 +57,8 @@ class BasketMixin:
             self.__basket = SessionBasket(request)
             self.__basket.minus_quantity(product)
         else:
-            self.__basket, _ = Basket.objects.get_or_create(user=request.user)
+            self.__basket, _ = Basket.objects.prefetch_related('items'). \
+                select_related('user').get_or_create(user=request.user)
             basket_item_minus_quantity(self.__basket, product)
 
     def _basket_remove_item(self, request, product):
@@ -64,7 +67,8 @@ class BasketMixin:
             self.__basket = SessionBasket(request)
             self.__basket.remove(product)
         else:
-            self.__basket, _ = Basket.objects.get_or_create(user=request.user)
+            self.__basket, _ = Basket.objects.prefetch_related('items'). \
+                select_related('user').get_or_create(user=request.user)
             basket_remove_item(self.__basket, product)
 
     def _basket_clear(self, request):
@@ -73,16 +77,12 @@ class BasketMixin:
             self.__basket = SessionBasket(request)
             self.__basket.clear()
         else:
-            self.__basket, _ = Basket.objects.get_or_create(user=request.user)
+            self.__basket, _ = Basket.objects.prefetch_related('items'). \
+                select_related('user').get_or_create(user=request.user)
             clear_basket(self.__basket)
 
-    def get_basket_len(self, request):
-        self.reset_basket_option()
-        if not request.user.is_authenticated:
-            self.__basket = SessionBasket(request)
-        else:
-            self.__basket, _ = Basket.objects.get_or_create(user=request.user)
-        return len(self.__basket)
+    def get_basket_len(self, basket):
+        return len(basket)
 
     def get_basket_data(self, request):
         """
@@ -101,19 +101,20 @@ class BasketMixin:
             self.__basket = SessionBasket(request)
             serializer = SessionBasketSerializer(self.__basket)
             basket_data = serializer.data
-            data = {'basket': basket_data,
+            data = {'items': basket_data,
                     'total_amount': self.__basket.total_amount,
                     'total_quantity_of_products': len(self.__basket)}
         else:
-            self.__basket, _ = Basket.objects.get_or_create(user=request.user)
-            items = BasketItems.objects.filter(basket=self.__basket)
+            self.__basket, _ = Basket.objects.prefetch_related('items'). \
+                select_related('user').get_or_create(user=request.user)
+            items = self.__basket.items.all().select_related('product').distinct()
             items_serializer = BasketItemsSerializer(instance=items, many=True)
             basket_data = items_serializer.data
             basket_serializer = BasketSerializer(instance=self.__basket)
             data = {'basket': basket_serializer.data,
                     'items': basket_data,
                     'total_amount': self.__basket.total_amount,
-                    'total_quantity_of_products': self.__basket.total_quantity_of_products}
+                    'total_quantity_of_products': len(self.__basket)}
         return data
 
     def basket_operation(self, request, product=None):

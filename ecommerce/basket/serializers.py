@@ -22,7 +22,7 @@ class BasketItemsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BasketItems
-        fields = ('basket', 'product', 'product_name', 'quantity', 'total_price')
+        fields = ('product', 'product_name', 'quantity', 'total_price')
 
     def get_product_name(self, obj):
         product = obj.product

@@ -7,7 +7,6 @@ from django.shortcuts import get_object_or_404
 from .utils import BasketMixin, BasketOperationTypes
 from .models import Basket, BasketItems
 from rest_framework import status
-from .permissions import BasketLenMoreThanZeroPermission
 
 
 def get_or_create_basket(request, user):
@@ -30,11 +29,14 @@ def get_or_create_basket(request, user):
 
 
 class BasketAPIView(BasketMixin, APIView):
-    permission_classes = [BasketLenMoreThanZeroPermission, AllowAny]
+    permission_classes = [AllowAny]
 
     def get(self, *args, **kwargs):
         data = self.get_basket_data(self.request)
-        return Response(data=data, status=status.HTTP_200_OK)
+        if len(data['items']) > 0:
+            return Response(data=data, status=status.HTTP_200_OK)
+        else:
+            return Response({'basket': 'You dont have items in your basket!'})
 
 
 class OperationBasketAPIView(BasketMixin, APIView):

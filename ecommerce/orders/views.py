@@ -1,10 +1,10 @@
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 from .serializers import OrderSerializer, OrderItemsSerializer
 from .models import Order, OrderItems
 from basket.utils import BasketMixin
-from basket.permissions import BasketLenMoreThanZeroPermission
 from rest_framework.permissions import AllowAny
 from payment.services import paypal_create_order
 from payment.services import paypal_complete_payment
@@ -13,22 +13,35 @@ from payment.services import paypal_complete_payment
 class OrderAPIView(BasketMixin, ListCreateAPIView):
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
-    permission_classes = [BasketLenMoreThanZeroPermission, AllowAny]
+    permission_classes = [AllowAny]
 
     def list(self, request, *args, **kwargs):
         data = self.get_basket_data(request)
-        return Response(data=data)
+        if len(data['items']) > 0:
+            return Response(data=data)
+        else:
+            return Response({'basket': 'You dont have items in your basket!'})
 
     def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
-        order_id = response.data['id']
-        if response.data['payment_method'] == Order.PAYMENT_METHODS[1][0]:
-            value = response.data['total_amount']
-            response.data['payment_link'] = paypal_create_order(value, order_id)
-        order_items = OrderItems.objects.filter(order_id=order_id)
-        response.data['order_items'] = OrderItemsSerializer(instance=order_items,
-                                                            many=True).data
-        return response
+        basket_data = self.get_basket_data(request)
+        if len(basket_data['items']) > 0:
+            response = super().create(request, *args, **kwargs)
+            order_id = response.data['id']
+
+            try:
+                order = Order.objects.get(id=order_id)
+            except Order.DoesNotExist:
+                return Response({'error': 'Order does not exist!'})
+
+            if response.data['payment_method'] == Order.PAYMENT_METHODS[1][0]:
+                value = response.data['total_amount']
+                response.data['payment_link'] = paypal_create_order(value, order_id)
+            order_items = OrderItems.objects.filter(order=order)
+            response.data['order_items'] = OrderItemsSerializer(instance=order_items,
+                                                                many=True).data
+            return response
+        else:
+            return Response({'basket': 'You dont have items in your basket!'})
 
 
 class OrderPaypalPaymentComplete(APIView):
