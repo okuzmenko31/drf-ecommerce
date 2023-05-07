@@ -1,10 +1,12 @@
-import json
 import requests
 import base64
 import os
 import paypalrestsdk
 from dotenv import load_dotenv
-from django.urls import reverse
+from django.utils import timezone
+
+from orders.models import Order
+from payment.models import PaymentInfo
 
 load_dotenv()
 
@@ -73,3 +75,12 @@ def paypal_complete_payment(payment_id, payer_id):
         return True
     else:
         return False
+
+
+def create_payment_info(order: Order):
+    PaymentInfo.objects.create(order=order,
+                               shipping_info=order.shipping_info,
+                               payment_method=order.payment_method,
+                               payment_amount=order.total_amount,
+                               payment_date=timezone.now(),
+                               is_paid=False)

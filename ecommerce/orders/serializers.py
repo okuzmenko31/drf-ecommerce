@@ -1,10 +1,8 @@
 from rest_framework import serializers
 from orders.models import Order, OrderItems
-from products.models import Products
+from payment.services import create_payment_info
 from products.serializers import ProductsSerializer
 from users.serializers import UserShippingInfoSerializer
-from users.models import UserShippingInfo
-from basket.utils import BasketMixin, BasketOperationTypes
 from .utils import OrderSerializerMixin
 
 
@@ -50,5 +48,5 @@ class OrderSerializer(OrderSerializerMixin,
         else:
             order.session_id = session_id
             order.save()
-        self.create_payment_info(order)
+        create_payment_info(order)
         return order

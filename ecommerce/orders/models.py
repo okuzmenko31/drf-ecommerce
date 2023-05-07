@@ -67,7 +67,7 @@ class Order(models.Model):
         ordering = ['total_amount']
 
     def __str__(self):
-        return f'Order #: {self.id}, order_id: {self.order_id}'
+        return f'Order #: {self.id}, order_id: {self.id}'
 
 
 class OrderItems(models.Model):

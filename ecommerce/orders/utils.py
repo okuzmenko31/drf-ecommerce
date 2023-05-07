@@ -45,12 +45,3 @@ class OrderSerializerMixin(BasketMixin):
                                       quantity=item['quantity'],
                                       total_price=item['total_price'])
         self.__clear_basket()
-
-    @staticmethod
-    def create_payment_info(order: Order):
-        PaymentInfo.objects.create(order=order,
-                                   shipping_info=order.shipping_info,
-                                   payment_method=order.payment_method,
-                                   payment_amount=order.total_amount,
-                                   payment_date=timezone.now(),
-                                   is_paid=False)
