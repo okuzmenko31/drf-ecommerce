@@ -114,6 +114,8 @@ class Products(models.Model):
                               null=True)
     discount = models.IntegerField(default=0,
                                    verbose_name='Discount(Optional)')
+    bonuses = models.IntegerField(default=0,
+                                  verbose_name='Bonuses(Optional)')
     article = models.CharField(max_length=8,
                                verbose_name='Article',
                                blank=True,

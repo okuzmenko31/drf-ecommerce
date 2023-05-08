@@ -22,6 +22,8 @@ class PaymentInfo(models.Model):
                                         null=True)
     is_paid = models.BooleanField(default=False,
                                   verbose_name='Order is paid')
+    bonus_taken = models.BooleanField(default=False,
+                                      verbose_name='Bonus taken')
 
     class Meta:
         verbose_name = 'payment info'

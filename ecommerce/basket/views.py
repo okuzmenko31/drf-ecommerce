@@ -2,6 +2,7 @@ from .basket import SessionBasket
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
+from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from products.models import Products
 from django.shortcuts import get_object_or_404
 from .utils import BasketMixin, BasketOperationTypes
@@ -30,6 +31,7 @@ def get_or_create_basket(request, user):
 
 class BasketAPIView(BasketMixin, APIView):
     permission_classes = [AllowAny]
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
 
     def get(self, *args, **kwargs):
         data = self.get_basket_data(self.request)

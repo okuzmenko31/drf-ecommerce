@@ -22,8 +22,10 @@ class OrderSerializerMixin(BasketMixin):
     def get_user_shipping_info(self, shipping_info_data, session_id):
         if self.request.user.is_authenticated:
             shipping_info, _ = UserShippingInfo.objects.get_or_create(user=self.request.user,
-                                                                      session_id=session_id,
                                                                       defaults=shipping_info_data)
+            if not shipping_info.session_id:
+                shipping_info.session_id = session_id
+                shipping_info.save()
         else:
             shipping_info, _ = UserShippingInfo.objects.get_or_create(session_id=session_id,
                                                                       defaults=shipping_info_data)

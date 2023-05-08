@@ -41,6 +41,8 @@ class Order(models.Model):
                               null=True)
     total_amount = models.IntegerField(default=0,
                                        verbose_name='Total amount of order')
+    total_bonuses_amount = models.IntegerField(default=0,
+                                               verbose_name='Total amount of bonuses for order')
     shipping_info = models.ForeignKey(UserShippingInfo,
                                       on_delete=models.SET_NULL,
                                       verbose_name='User shipping info',

@@ -53,9 +53,13 @@ class OrderPaypalPaymentComplete(APIView):
         payer_id = self.request.query_params.get('PayerID')
         if paypal_complete_payment(payment_id, payer_id):
             try:
-                payment_info = PaymentInfo.objects.get(order_id=order_id)
+                order = Order.objects.get(id=order_id)
             except (Exception,):
                 return Response({'error': 'Order error.'})
-            payment_info.is_paid = True
-            payment_info.save()
+            order.payment_info.is_paid = True
+            if order.user and order.total_bonuses_amount > 0:
+                order.user.bonuses_balance.balance += order.total_bonuses_amount
+                order.user.bonuses_balance.save()
+                order.payment_info.bonus_taken = True
+            order.payment_info.save()
         return Response({'success': 'You successfully paid for order!'})
