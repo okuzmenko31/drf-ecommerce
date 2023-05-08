@@ -12,3 +12,4 @@ celery-beat-schedule.db
 *.Ds_Store
 *.log
 logging
+.venv

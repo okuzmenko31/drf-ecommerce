@@ -15,7 +15,7 @@ class OrderItemsSerializer(serializers.ModelSerializer):
         fields = ('order_id', 'product', 'quantity', 'total_price')
 
     def get_order_id(self, obj):
-        return obj.order.order_id
+        return obj.order.id
 
 
 class OrderSerializer(OrderSerializerMixin,

@@ -4,7 +4,6 @@ import os
 import paypalrestsdk
 from dotenv import load_dotenv
 from django.utils import timezone
-
 from orders.models import Order
 from payment.models import PaymentInfo
 
@@ -63,7 +62,6 @@ def paypal_create_order(value, order_id):
         for link in payment.links:
             if link.rel == "approval_url":
                 payment_url = link.href
-                print(payment_url)
     else:
         return payment.error
     return payment_url

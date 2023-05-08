@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import OrderSerializer, OrderItemsSerializer
 from .models import Order, OrderItems
+from payment.models import PaymentInfo
 from basket.utils import BasketMixin
 from rest_framework.permissions import AllowAny
 from payment.services import paypal_create_order
@@ -52,9 +53,9 @@ class OrderPaypalPaymentComplete(APIView):
         payer_id = self.request.query_params.get('PayerID')
         if paypal_complete_payment(payment_id, payer_id):
             try:
-                order = Order.objects.get(id=order_id)
+                payment_info = PaymentInfo.objects.get(order_id=order_id)
             except (Exception,):
                 return Response({'error': 'Order error.'})
-            order.payment_info.is_paid = True
-            order.payment_info.save()
+            payment_info.is_paid = True
+            payment_info.save()
         return Response({'success': 'You successfully paid for order!'})

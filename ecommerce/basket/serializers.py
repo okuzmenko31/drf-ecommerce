@@ -33,9 +33,10 @@ class BasketItemsSerializer(serializers.ModelSerializer):
 class SessionBasketSerializer(serializers.Serializer):
 
     def to_representation(self, instance):
-        items = {}
+        items = []
         for item in instance:
             item_data = item.copy()
-            item_data['product'] = item_data.pop('product').name
-            items[str(item['product'].id)] = {'item': item_data}
+            item_data['product_name'] = item_data.get('product').name
+            item_data['product'] = item_data.pop('product').id
+            items.append(item_data)
         return {'items': items}

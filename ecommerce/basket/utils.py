@@ -101,9 +101,9 @@ class BasketMixin:
             self.__basket = SessionBasket(request)
             serializer = SessionBasketSerializer(self.__basket)
             basket_data = serializer.data
-            data = {'items': basket_data,
-                    'total_amount': self.__basket.total_amount,
+            data = {'total_amount': self.__basket.total_amount,
                     'total_quantity_of_products': len(self.__basket)}
+            data.update(basket_data)
         else:
             self.__basket, _ = Basket.objects.prefetch_related('items'). \
                 select_related('user').get_or_create(user=request.user)

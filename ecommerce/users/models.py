@@ -117,7 +117,7 @@ class UserShippingInfo(models.Model):
                                 related_name='shipping_info',
                                 blank=True,
                                 null=True)
-    session_id = models.CharField(max_length=10,
+    session_id = models.CharField(max_length=32,
                                   blank=True,
                                   null=True)
     name = models.CharField(max_length=180,
@@ -141,4 +141,4 @@ class UserShippingInfo(models.Model):
         verbose_name_plural = 'Shipping Infos'
 
     def __str__(self):
-        return f'Shipping info of: {self.user.username}'
+        return f'Shipping info of: {self.name} {self.surname} {self.patronymic}'

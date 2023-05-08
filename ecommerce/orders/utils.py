@@ -1,5 +1,5 @@
 from basket.utils import BasketMixin, BasketOperationTypes
-from .models import Order, OrderItems
+from .models import OrderItems
 from users.models import UserShippingInfo
 from products.models import Products
 
@@ -20,8 +20,9 @@ class OrderSerializerMixin(BasketMixin):
         self.basket_operation(self.request)
 
     def get_user_shipping_info(self, shipping_info_data, session_id):
-        if self.request:
+        if self.request.user.is_authenticated:
             shipping_info, _ = UserShippingInfo.objects.get_or_create(user=self.request.user,
+                                                                      session_id=session_id,
                                                                       defaults=shipping_info_data)
         else:
             shipping_info, _ = UserShippingInfo.objects.get_or_create(session_id=session_id,
