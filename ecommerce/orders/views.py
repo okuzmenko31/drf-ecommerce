@@ -1,10 +1,9 @@
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from .serializers import OrderSerializer, OrderItemsSerializer
 from .models import Order, OrderItems
-from payment.models import PaymentInfo
 from basket.utils import BasketMixin
 from rest_framework.permissions import AllowAny
 from payment.services import paypal_create_order
@@ -15,6 +14,7 @@ class OrderAPIView(BasketMixin, ListCreateAPIView):
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
     permission_classes = [AllowAny]
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
 
     def list(self, request, *args, **kwargs):
         data = self.get_basket_data(request)
