@@ -1,6 +1,6 @@
 from typing import Optional, Union
 from basket.basket import SessionBasket
-from basket.models import BasketItems, Basket
+from basket.models import Basket
 from basket.serializers import BasketItemsSerializer, SessionBasketSerializer, BasketSerializer
 from basket.basket import (basket_add_item,
                            basket_item_add_quantity,
@@ -81,7 +81,8 @@ class BasketMixin:
                 select_related('user').get_or_create(user=request.user)
             clear_basket(self.__basket)
 
-    def get_basket_len(self, basket):
+    @staticmethod
+    def get_basket_len(basket):
         return len(basket)
 
     def get_basket_data(self, request):

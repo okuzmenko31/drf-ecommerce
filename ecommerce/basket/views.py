@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
-from products.models import Products
+from products.models import Products, AvailabilityStatuses
 from django.shortcuts import get_object_or_404
 from .utils import BasketMixin, BasketOperationTypes
 from .models import Basket, BasketItems
@@ -55,8 +55,11 @@ class OperationBasketAPIView(BasketMixin, APIView):
 
     def post(self, *args, **kwargs):
         product = get_object_or_404(Products, id=kwargs['product_id'])
-        data = self.basket_operation(self.request, product)
-        return Response(data=data)
+        if product.availability_status != AvailabilityStatuses.out_of_stock[0]:
+            data = self.basket_operation(self.request, product)
+            return Response(data=data)
+        else:
+            return Response({'not available': 'This product now is not in stock now'})
 
 
 class AddToBasketAPIView(OperationBasketAPIView):
@@ -75,5 +78,9 @@ class BasketClearAPIView(OperationBasketAPIView):
     operation_type = BasketOperationTypes.basket_clear
 
     def get(self, *args, **kwargs):
+        data = self.get_basket_data(self.request)
+        return Response(data=data)
+
+    def post(self, *args, **kwargs):
         data = self.basket_operation(self.request)
         return Response(data=data)

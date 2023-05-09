@@ -3,15 +3,18 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from .serializers import OrderSerializer, OrderItemsSerializer
-from .models import Order, OrderItems
+from .models import Order
 from basket.utils import BasketMixin
 from rest_framework.permissions import AllowAny
-from payment.services import paypal_create_order
 from payment.services import paypal_complete_payment
+from .utils import OrderMixin
 
 
-class OrderAPIView(BasketMixin, ListCreateAPIView):
+class OrderAPIView(OrderMixin,
+                   BasketMixin,
+                   ListCreateAPIView):
     serializer_class = OrderSerializer
+    items_serializer = OrderItemsSerializer
     queryset = Order.objects.all()
     permission_classes = [AllowAny]
     authentication_classes = [SessionAuthentication, TokenAuthentication]
@@ -24,25 +27,9 @@ class OrderAPIView(BasketMixin, ListCreateAPIView):
             return Response({'basket': 'You dont have items in your basket!'})
 
     def create(self, request, *args, **kwargs):
-        basket_data = self.get_basket_data(request)
-        if len(basket_data['items']) > 0:
-            response = super().create(request, *args, **kwargs)
-            order_id = response.data['id']
-
-            try:
-                order = Order.objects.get(id=order_id)
-            except Order.DoesNotExist:
-                return Response({'error': 'Order does not exist!'})
-
-            if response.data['payment_method'] == Order.PAYMENT_METHODS[1][0]:
-                value = response.data['total_amount']
-                response.data['payment_link'] = paypal_create_order(value, order_id)
-            order_items = OrderItems.objects.filter(order=order)
-            response.data['order_items'] = OrderItemsSerializer(instance=order_items,
-                                                                many=True).data
-            return response
-        else:
-            return Response({'basket': 'You dont have items in your basket!'})
+        response = super().create(request, *args, **kwargs)
+        self.request = request
+        return self.create_order(response)
 
 
 class OrderPaypalPaymentComplete(APIView):

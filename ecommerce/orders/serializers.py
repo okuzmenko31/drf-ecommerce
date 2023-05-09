@@ -3,7 +3,7 @@ from orders.models import Order, OrderItems
 from payment.services import create_payment_info
 from products.serializers import ProductsSerializer
 from users.serializers import UserShippingInfoSerializer
-from .utils import OrderSerializerMixin
+from .utils import OrderMixin
 
 
 class OrderItemsSerializer(serializers.ModelSerializer):
@@ -18,7 +18,7 @@ class OrderItemsSerializer(serializers.ModelSerializer):
         return obj.order.id
 
 
-class OrderSerializer(OrderSerializerMixin,
+class OrderSerializer(OrderMixin,
                       serializers.ModelSerializer):
     shipping_info = UserShippingInfoSerializer()
 
@@ -38,9 +38,8 @@ class OrderSerializer(OrderSerializerMixin,
         self.request = request
 
         shipping_info = self.get_user_shipping_info(shipping_info_data, session_id)
-        order = Order.objects.create(shipping_info=shipping_info, **validated_data)
-
-        self.create_order_items(order)
+        order = Order.objects.prefetch_related('items').create(shipping_info=shipping_info,
+                                                               **validated_data)
 
         if request.user.is_authenticated:
             order.user = request.user
