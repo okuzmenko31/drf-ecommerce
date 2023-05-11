@@ -1,0 +1,6 @@
+../.vscode
+__pycache__
+.env_sample
+.gitignore
+README.md
+.idea

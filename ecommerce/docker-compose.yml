@@ -1,0 +1,57 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_HOST=${DB_HOST}
+      - POSTGRES_PORT=${DB_PORT}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  drf_app:
+    build:
+      context: .
+    restart: always
+    ports:
+      - '8000:8000'
+    volumes:
+      - .:/drf_ecommerce/apps
+    depends_on:
+      - db
+    environment:
+      - DB_ENGINE=${DB_ENGINE}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+
+  redis:
+    image: redis:alpine
+    hostname: redis
+    ports:
+      - '6379:6379'
+
+  worker:
+    restart: always
+    build:
+      context: .
+    entrypoint: celery
+    command: -A core worker --loglevel=info
+    volumes:
+      - .:/drf_ecommerce/apps
+    links:
+      - redis
+    depends_on:
+      - db
+      - drf_app
+      - redis
+
+volumes:
+  postgres_data:
+    
