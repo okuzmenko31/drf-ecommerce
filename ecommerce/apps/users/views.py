@@ -28,11 +28,13 @@ class UserRegistrationAPIView(AuthTokenMixin,
     permission_classes = [IsNotAuthenticated]
     token_type = TokenTypes.SIGNUP
     html_message_template = 'users/confirm_email_message.html'
+    mail_with_celery = True
 
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
         tokenized_mail_message = self.send_tokenized_mail(
             self.request.data['email'])
+
         return Response({
             'status': 200,
             'message': tokenized_mail_message,
@@ -119,6 +121,7 @@ class ChangeEmailAPIView(AuthTokenMixin,
     authentication_classes = [TokenAuthentication]
     token_type = TokenTypes.CHANGE_EMAIL
     html_message_template = 'users/confirm_email_changing.html'
+    mail_with_celery = True
 
     def post(self, *args, **kwargs):
         serializer = ChangeEmailSerializer(data=self.request.data)
@@ -154,6 +157,7 @@ class SendPasswordResetAPIView(AuthTokenMixin,
     serializer_class = SendPasswordResetMailSerializer
     token_type = TokenTypes.PASSWORD_RESET
     html_message_template = 'users/password_reset_msg.html'
+    mail_with_celery = True
 
     def post(self, *args, **kwargs):
         serializer = SendPasswordResetMailSerializer(data=self.request.data)

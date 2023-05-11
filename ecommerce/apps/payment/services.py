@@ -75,10 +75,19 @@ def paypal_complete_payment(payment_id, payer_id):
         return False
 
 
-def create_payment_info(order: Order):
-    PaymentInfo.objects.create(order=order,
-                               shipping_info=order.shipping_info,
-                               payment_method=order.payment_method,
-                               payment_amount=order.total_amount,
-                               payment_date=timezone.now(),
-                               is_paid=False)
+def create_payment_info(order: Order, is_paid=False):
+    if not is_paid:
+        info = PaymentInfo.objects.create(order=order,
+                                          shipping_info=order.shipping_info,
+                                          payment_method=order.payment_method,
+                                          payment_amount=order.total_amount,
+                                          payment_date=timezone.now(),
+                                          is_paid=False)
+    else:
+        info = PaymentInfo.objects.create(order=order,
+                                          shipping_info=order.shipping_info,
+                                          payment_method=order.payment_method,
+                                          payment_amount=order.total_amount,
+                                          payment_date=timezone.now(),
+                                          is_paid=False)
+    return info

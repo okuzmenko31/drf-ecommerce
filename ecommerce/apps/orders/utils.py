@@ -4,6 +4,7 @@ from .models import OrderItems, Order
 from apps.users.models import UserShippingInfo
 from apps.products.models import Products, AvailabilityStatuses
 from rest_framework.response import Response
+from django.db.models import Sum
 
 
 class OrderMixin(BasketMixin):
@@ -51,6 +52,66 @@ class OrderMixin(BasketMixin):
         ).values_list('id')
         return not_available_basket_products
 
+    @staticmethod
+    def get_order_total_values(order: Order) -> dict:
+        """
+        This method returns dict with order
+        total amount and total bonuses amount.
+        """
+        total_values_order = order.items.aggregate(total_amount=Sum('total_price'),
+                                                   total_bonuses_amount=Sum('product__bonuses'))
+        return total_values_order
+
+    def process_order_payment_with_bonuses(self, order: Order):
+        """
+        Processes the payment for the given order
+        using user bonuses balance and updates the
+        payment status and order total amount accordingly.
+        """
+        order_total_values = self.get_order_total_values(order)
+
+        order_total_amount = order_total_values['total_amount']
+        order_total_bonuses_amount = order_total_values['total_bonuses_amount']
+
+        if order.user and order.activate_bonuses and order.user.bonuses_balance:
+            # bonuses will be withdrawn from the user's bonuses balance
+            # only if he has selected this option
+            user_bonuses = order.user.bonuses_balance.balance
+
+            if user_bonuses >= order_total_amount:
+                # if the user's balance is greater than the
+                # total amount of the order, the total amount
+                # of order will be deducted from user's bonuses
+                # balance and order will be marked as paid.
+                order.user.bonuses_balance.balance = user_bonuses - order_total_amount
+                order.user.bonuses_balance.save()
+
+                payment_info = order.payment_info
+                payment_info.is_paid = True
+                payment_info.save()
+
+                if order_total_bonuses_amount > 0:
+                    # add order bonuses to the user's balance
+                    # we have the same operation in payment/signals.py in
+                    # pre save signal, but in this case it won't be working
+                    # because initially order not is_paid what is needed to call
+                    # pre save method
+                    order.user.bonuses_balance.balance += order_total_bonuses_amount
+                    order.user.bonuses_balance.save()
+                    payment_info.bonus_taken = True
+
+                payment_info.payment_amount = order_total_amount
+                payment_info.save()
+
+            elif order_total_amount > user_bonuses > 0:
+                order.user.bonuses_balance.balance = 0
+                order.user.save()
+                order_total_amount -= user_bonuses
+
+        order.total_bonuses_amount = order_total_bonuses_amount
+        order.total_amount = order_total_amount
+        order.save()
+
     def create_order(self, response) -> Response:
         """
         Creates order and returns response with order data
@@ -67,7 +128,7 @@ class OrderMixin(BasketMixin):
 
         if not len(not_available_basket_products) > 0:
             # order will be crated, if in user's basket
-            # don't have product that are not available.
+            # don't have products that are not available.
 
             if len(basket_data['items']) > 0:
                 # if user's basket is not empty
@@ -85,7 +146,10 @@ class OrderMixin(BasketMixin):
                                               quantity=item['quantity'],
                                               total_price=item['total_price'])
 
-                if response.data['payment_method'] == Order.PAYMENT_METHODS[1][0]:
+                response.data['total_amount'] = self.get_order_total_values(order)['total_amount']
+                self.process_order_payment_with_bonuses(order)
+
+                if response.data['payment_method'] == Order.PAYMENT_METHODS[1][0] and not order.payment_info.is_paid:
                     # if payment method is by card, to the response
                     # will be added PayPal payment link
                     value = response.data['total_amount']
@@ -95,6 +159,7 @@ class OrderMixin(BasketMixin):
                                                                'product')
                 response.data['order_items'] = self.items_serializer(instance=order_items,
                                                                      many=True).data
+                self.basket_operation(self.request)
                 return response
             else:
                 return Response({'basket': 'You dont have items in your basket!'})

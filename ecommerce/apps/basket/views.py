@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from .utils import BasketMixin, BasketOperationTypes
 from .models import Basket, BasketItems
 from rest_framework import status
+from django.conf import settings
 
 
 def get_or_create_basket(request, user):
@@ -34,6 +35,7 @@ class BasketAPIView(BasketMixin, APIView):
     authentication_classes = [SessionAuthentication, TokenAuthentication]
 
     def get(self, *args, **kwargs):
+        print(settings.BASE_DIR)
         data = self.get_basket_data(self.request)
         if len(data['items']) > 0:
             return Response(data=data, status=status.HTTP_200_OK)

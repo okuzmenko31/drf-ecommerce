@@ -119,8 +119,8 @@ class AuthTokenMixin(MailContextMixin):
             try:
                 # If a token already exists, it will be deleted
                 # and a new one will be created.
-                User.objects.get(token_owner=email,
-                                 token_type=self.token_type).delete()
+                UserToken.objects.get(token_owner=email,
+                                      token_type=self.token_type).delete()
                 token = UserToken.objects.create(token_owner=email,
                                                  token_type=self.token_type)
             except UserToken.DoesNotExist:
