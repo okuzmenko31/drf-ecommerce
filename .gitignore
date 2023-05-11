@@ -1,6 +1,6 @@
 venv
 __pycache__
-.env
+ecommerce/.env
 static
 TODO
 .idea
