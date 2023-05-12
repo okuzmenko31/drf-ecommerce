@@ -127,7 +127,7 @@ class OrderMixin(BasketMixin):
         not_available_basket_products = self.get_not_available_basket_products(basket_data)
 
         if not len(not_available_basket_products) > 0:
-            # order will be crated, if in user's basket
+            # order will be created, if in user's basket
             # don't have products that are not available.
 
             if len(basket_data['items']) > 0:

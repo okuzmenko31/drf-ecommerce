@@ -6,4 +6,4 @@ class StockConfig(AppConfig):
     name = 'apps.stock'
 
     def ready(self):
-        pass
+        import apps.stock.signals

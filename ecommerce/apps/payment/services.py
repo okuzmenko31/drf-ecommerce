@@ -89,5 +89,5 @@ def create_payment_info(order: Order, is_paid=False):
                                           payment_method=order.payment_method,
                                           payment_amount=order.total_amount,
                                           payment_date=timezone.now(),
-                                          is_paid=False)
+                                          is_paid=True)
     return info
