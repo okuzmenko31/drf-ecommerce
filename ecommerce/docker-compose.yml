@@ -43,7 +43,7 @@ services:
     build:
       context: .
     entrypoint: celery
-    command: -A core worker --loglevel=info
+    command: -A core worker -B --loglevel=info
     volumes:
       - .:/drf_ecommerce/apps
     links:

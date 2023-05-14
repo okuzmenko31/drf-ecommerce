@@ -41,5 +41,5 @@ class UserAdmin(BaseUserAdmin):
 
 @admin.register(UserToken)
 class UserTokenAdmin(admin.ModelAdmin):
-    list_display = ['id', 'token_owner', 'token']
+    list_display = ['id', 'token_owner', 'token', 'created']
     list_display_links = ['id', 'token_owner', 'token']

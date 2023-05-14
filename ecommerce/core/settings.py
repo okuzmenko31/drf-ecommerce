@@ -169,16 +169,28 @@ BASKET_SESSION = 'basket'
 # LOGGING
 
 LOGGING = {
-    'version': 1,
-    'handlers': {
-        'console': {'class': 'logging.StreamHandler'}
-    },
-    'loggers': {
-        'django.db.backends': {
-            'handlers': ['console'],
-            'level': 'DEBUG'
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "main_format": {
+            "format": "{asctime} - {levelname} - {module} - {filename} - {message}",
+            "style": "{",
         }
-    }
+    },
+
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "main_format"
+        },
+    },
+    "loggers": {
+        "main": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+    },
 }
 
 # DJANGO DEBUG TOOL BAR
