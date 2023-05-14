@@ -124,6 +124,9 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'static'
+STATICFILES_DIRS = [
+    BASE_DIR / 'frontend/static'
+]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -166,33 +169,33 @@ BASKET_SESSION = 'basket'
 # LOGGING
 
 LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "main_format": {
-            "format": "{asctime} - {levelname} - {module} - {filename} - {message}",
-            "style": "{",
+    'version': 1,
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler'}
+    },
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'DEBUG'
         }
-    },
-
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "formatter": "main_format"
-        },
-    },
-    "loggers": {
-        "main": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": False,
-        },
-    },
+    }
 }
 
 # DJANGO DEBUG TOOL BAR
 
 INTERNAL_IPS = ['127.0.0.1']
+
+if DEBUG:
+    """
+    If you are starting your app
+    with docker, you need to write it
+    in your settings.py for correct working
+    of django debug toolbar.
+    """
+    import socket  # only if you haven't already imported this
+
+    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+    INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]
 
 # PAYPAL
 
@@ -200,5 +203,5 @@ PAYPAL_RECEIVER_EMAIL = os.getenv('PAYPAL_RECEIVER_EMAIL')
 
 # CELERY
 
-CELERY_BROKER_URL = "redis://redis:6379/0"
-CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'

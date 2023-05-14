@@ -1,5 +1,5 @@
 from .models import Products, ProductVariations
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Q, Prefetch
 
 
 class ProductVariationsMixin:
@@ -16,7 +16,8 @@ class ProductVariationsMixin:
         """
         self._related_variations = []
 
-    def get_related_variations(self, product_id: int) -> QuerySet[ProductVariations]:
+    @staticmethod
+    def get_related_variations(product_id: int) -> QuerySet[ProductVariations]:
         """
         This method returns variations which related with product.
         For example if product have related variation with
@@ -30,16 +31,15 @@ class ProductVariationsMixin:
         """
         product = Products.objects.select_related('category').get(id=product_id)
         related_variations = ProductVariations.objects.filter(
-            variation_category__in=product.variations.values('variation_category'),
-            product__category=product.category).select_related('product', 'variation_category',
-                                                               'product__category').exclude(product=product).distinct(
-            'product')
-        for variation in related_variations:
-            another_variations = variation.product.variations.select_related('variation_category').exclude(
-                variation_category=variation.variation_category).values_list('id', flat=True)
-            self._related_variations.extend(another_variations)
-        variations = ProductVariations.objects.filter(
-            id__in=self._related_variations).select_related('product', 'variation_category').exclude(product=product)
+            Q(variation_category__in=product.variations.values_list('variation_category')) &
+            Q(product__category=product.category)).exclude(
+            product=product).distinct(
+            'product').select_related('product', 'variation_category').values_list('variation_category_id',
+                                                                                   'product_id')
+        variation_category_ids, product_ids = zip(*related_variations)
+        variations = ProductVariations.objects.filter(product_id__in=product_ids).exclude(
+            variation_category__in=variation_category_ids).select_related('product',
+                                                                          'variation_category')
         return variations
 
     def get_related_variations_by_parent(self, product_id: int, parent_id: int) -> QuerySet[ProductVariations]:

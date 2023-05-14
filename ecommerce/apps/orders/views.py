@@ -1,11 +1,15 @@
 from rest_framework.generics import ListCreateAPIView
+from rest_framework.viewsets import GenericViewSet
+from rest_framework import mixins
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
-from .serializers import OrderSerializer, OrderItemsSerializer
+from .serializers import (OrderSerializer,
+                          OrderItemsSerializer,
+                          OrdersForAdminSerializer)
 from .models import Order
 from apps.basket.utils import BasketMixin
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from apps.payment.services import paypal_complete_payment
 from .utils import OrderMixin
 
@@ -50,3 +54,21 @@ class OrderPaypalPaymentComplete(APIView):
                 order.payment_info.bonus_taken = True
             order.payment_info.save()
         return Response({'success': 'You successfully paid for order!'})
+
+
+class OrdersViewSet(BasketMixin,
+                    mixins.ListModelMixin,
+                    mixins.RetrieveModelMixin,
+                    mixins.DestroyModelMixin,
+                    mixins.UpdateModelMixin,
+                    GenericViewSet):
+    serializer_class = OrdersForAdminSerializer
+    permission_classes = [IsAdminUser]
+    authentication_classes = [TokenAuthentication, SessionAuthentication]
+    queryset = Order.objects.all()
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        data = self.get_basket_data(request)
+        response.data['items'] = data
+        return response

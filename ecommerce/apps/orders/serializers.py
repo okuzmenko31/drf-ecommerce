@@ -4,6 +4,7 @@ from apps.payment.services import create_payment_info
 from apps.products.serializers import ProductsSerializer
 from apps.users.serializers import UserShippingInfoSerializer
 from .utils import OrderMixin
+from apps.payment.serializers import PaymentInfoSerializer
 
 
 class OrderItemsSerializer(serializers.ModelSerializer):
@@ -37,7 +38,8 @@ class OrderSerializer(OrderMixin,
         session_id = request.session.session_key
         self.request = request
 
-        shipping_info = self.get_user_shipping_info(shipping_info_data, session_id)
+        shipping_info = self.get_user_shipping_info(
+            shipping_info_data, session_id)
         order = Order.objects.prefetch_related('items').create(shipping_info=shipping_info,
                                                                **validated_data)
 
@@ -49,3 +51,19 @@ class OrderSerializer(OrderMixin,
             order.save()
         create_payment_info(order)
         return order
+
+
+class OrdersForAdminSerializer(OrderSerializer):
+    payment_info = PaymentInfoSerializer()
+
+    class Meta:
+        model = Order
+        fields = ('id', 'shipping_info', 'delivery_method',
+                  'coupon', 'activate_bonuses',
+                  'comment', 'create_account',
+                  'total_amount',
+                  'payment_info')
+        read_only_fields = ['total_amount',
+                            'coupon',
+                            'activate_bonuses',
+                            'create_account']
