@@ -26,6 +26,9 @@ class Order(models.Model):
                              related_name='orders',
                              blank=True,
                              null=True)
+    email = models.EmailField(verbose_name='Email for invoice sending',
+                              blank=True,
+                              null=True)
     session_id = models.CharField(max_length=32,
                                   blank=True,
                                   null=True)

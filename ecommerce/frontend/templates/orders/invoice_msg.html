@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Чек</title>
+</head>
+<body>
+<h1>Чек</h1>
+<table>
+    <tr>
+        <th>Название товара</th>
+        <th>Количество</th>
+        <th>Цена</th>
+    </tr>
+    {% for item in order.items.all %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.product.price }}</td>
+        </tr>
+    {% endfor %}
+</table>
+<p>Итого: {{ order.total }}</p>
+</body>
+</html>

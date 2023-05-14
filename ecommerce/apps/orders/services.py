@@ -1,6 +1,8 @@
 import requests
 import os
 from dotenv import load_dotenv
+from io import BytesIO
+from reportlab.pdfgen import canvas
 
 load_dotenv()
 
@@ -81,3 +83,25 @@ def get_nova_poshta_post_offices_choices():
             warehouses_list.append(item['Description'])
     warehouses = [warehouse for warehouse in warehouses_list]
     return warehouses
+
+
+def draw_pdf_invoice(order):
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer)
+    p.drawString(100, 750, "Invoice")
+    p.drawString(100, 700, "Product name")
+    p.drawString(250, 700, "Quantity")
+    p.drawString(400, 700, "Price")
+    y = 650
+
+    for item in order.items.all():
+        p.drawString(100, y, item.product.name)
+        p.drawString(250, y, str(item.quantity))
+        p.drawString(400, y, str(item.product.price))
+        y -= 50
+    p.drawString(400, y - 50, "Total: " + str(order.total_amount))
+    p.showPage()
+    p.save()
+    buffer.seek(0)
+    invoice = buffer.getvalue()
+    return invoice

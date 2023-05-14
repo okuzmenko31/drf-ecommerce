@@ -5,6 +5,12 @@ from apps.users.models import UserShippingInfo
 from apps.products.models import Products, AvailabilityStatuses
 from rest_framework.response import Response
 from django.db.models import Sum
+from django.conf import settings
+from django.core.mail import send_mail, EmailMessage, EmailMultiAlternatives
+from django.template.loader import render_to_string
+from .services import draw_pdf_invoice
+
+email_sender = settings.EMAIL_HOST_USER
 
 
 class OrderMixin(BasketMixin):
@@ -21,6 +27,8 @@ class OrderMixin(BasketMixin):
     items_serializer = None
     operation_type = BasketOperationTypes.basket_clear
     __request = None
+    invoice_html_template = 'orders/invoice_msg.html'
+    send_invoice_with_celery = False
 
     @property
     def request(self):
@@ -112,6 +120,20 @@ class OrderMixin(BasketMixin):
         order.total_amount = order_total_amount
         order.save()
 
+    def send_email_with_invoice(self, order: Order):
+        html = render_to_string(self.invoice_html_template, {'order': order})
+        invoice = draw_pdf_invoice(order)
+
+        subject = 'DRF ECOMMERCE'
+        message = f'Invoice for order# {order.id}'
+        if self.send_invoice_with_celery:
+            pass
+        else:
+            email = EmailMultiAlternatives(message, subject, email_sender, [order.shipping_info.email])
+            email.attach('invoice.pdf', invoice, 'application/pdf')
+            email.attach_alternative(html, 'text/html')
+            email.send(fail_silently=True)
+
     def create_order(self, response) -> Response:
         """
         Creates order and returns response with order data
@@ -160,6 +182,7 @@ class OrderMixin(BasketMixin):
                 response.data['order_items'] = self.items_serializer(instance=order_items,
                                                                      many=True).data
                 self.basket_operation(self.request)
+                self.send_email_with_invoice(order)
                 return response
             else:
                 return Response({'basket': 'You dont have items in your basket!'})
