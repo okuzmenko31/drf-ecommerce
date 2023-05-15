@@ -113,7 +113,7 @@ class OrderMixin(BasketMixin):
 
             elif order_total_amount > user_bonuses > 0:
                 order.user.bonuses_balance.balance = 0
-                order.user.save()
+                order.user.bonuses_balance.save()
                 order_total_amount -= user_bonuses
 
         order.total_bonuses_amount = order_total_bonuses_amount
@@ -169,7 +169,6 @@ class OrderMixin(BasketMixin):
                                               total_price=item['total_price'])
 
                 response.data['total_amount'] = self.get_order_total_values(order)['total_amount']
-                self.process_order_payment_with_bonuses(order)
 
                 if response.data['payment_method'] == Order.PAYMENT_METHODS[1][0] and not order.payment_info.is_paid:
                     # if payment method is by card, to the response
@@ -177,6 +176,10 @@ class OrderMixin(BasketMixin):
                     value = response.data['total_amount']
                     response.data['payment_link'] = paypal_create_order(value, order_id)
                 else:
+                    self.process_order_payment_with_bonuses(order)
+                    # we are  processing order payment with bonuses here only if
+                    # payment method is by cash, to avoid withdrawal
+                    # of bonuses without payment(in case if payment method is by card).
                     self.send_email_with_invoice(order)
 
                 order_items = order.items.all().select_related('order',

@@ -8,10 +8,12 @@ from .serializers import (OrderSerializer,
                           OrderItemsSerializer,
                           OrdersForAdminSerializer)
 from .models import Order
-from apps.basket.utils import BasketMixin
 from rest_framework.permissions import AllowAny, IsAdminUser
 from apps.payment.services import paypal_complete_payment
 from .utils import OrderMixin
+from apps.coupons.models import UserCoupons
+from apps.coupons.services import get_coupon
+from apps.coupons.utils import find_coupons
 
 
 class OrderAPIView(OrderMixin,
@@ -35,7 +37,8 @@ class OrderAPIView(OrderMixin,
         return self.create_order(response)
 
 
-class OrderPaypalPaymentComplete(APIView):
+class OrderPaypalPaymentComplete(OrderMixin,
+                                 APIView):
 
     def get(self, *args, **kwargs):
         mixin = OrderMixin()
@@ -54,11 +57,22 @@ class OrderPaypalPaymentComplete(APIView):
                 order.payment_info.bonus_taken = True
             order.payment_info.save()
             mixin.send_email_with_invoice(order)
+
+            if self.request.user.is_authenticated:
+                coupons = None
+                for item in order.items.all():
+                    item_coupons = find_coupons(item)
+                    if item_coupons.coupons:
+                        coupons = item_coupons.coupons
+                for coupon in coupons:
+                    if get_coupon(coupon):
+                        UserCoupons.objects.create(coupon=coupon,
+                                                   user=self.request.user)
+                self.process_order_payment_with_bonuses(order)
         return Response({'success': 'You successfully paid for order!'})
 
 
-class OrdersViewSet(BasketMixin,
-                    mixins.ListModelMixin,
+class OrdersViewSet(mixins.ListModelMixin,
                     mixins.RetrieveModelMixin,
                     mixins.DestroyModelMixin,
                     mixins.UpdateModelMixin,
@@ -70,6 +84,8 @@ class OrdersViewSet(BasketMixin,
 
     def retrieve(self, request, *args, **kwargs):
         response = super().retrieve(request, *args, **kwargs)
-        data = self.get_basket_data(request)
-        response.data['items'] = data
+        order = self.get_object()
+        items = order.items.all()
+        items_serializer = OrderItemsSerializer(instance=items, many=True)
+        response.data['items'] = items_serializer.data
         return response

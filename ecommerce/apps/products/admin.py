@@ -10,6 +10,13 @@ from .models import (Products,
                      ParentOfVariationCategory)
 from django.utils.safestring import mark_safe
 from django.forms.models import inlineformset_factory
+from apps.coupons.models import Coupons
+
+
+class CouponsTabularInline(admin.TabularInline):
+    model = Coupons
+    extra = 1
+
 
 ProductVariationInlineFormSet = inlineformset_factory(Products,
                                                       ProductVariations,
@@ -18,7 +25,7 @@ ProductVariationInlineFormSet = inlineformset_factory(Products,
 
 class ProductVariationInline(admin.TabularInline):
     model = ProductVariations
-    extra = 1
+    extra = 3
     formset = ProductVariationInlineFormSet
 
 
@@ -30,7 +37,7 @@ class ProductsAdmin(admin.ModelAdmin):
     list_filter = ['category']
     search_fields = ['id', 'name', 'category', 'price']
     readonly_fields = ['get_photo', 'rating', 'slug']
-    inlines = [ProductVariationInline]
+    inlines = [ProductVariationInline, CouponsTabularInline]
 
     def get_photo(self, obj):
         if obj.photo:
