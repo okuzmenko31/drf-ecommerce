@@ -2,7 +2,9 @@ import requests
 import os
 from dotenv import load_dotenv
 from io import BytesIO
-from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 
 load_dotenv()
 
@@ -87,21 +89,38 @@ def get_nova_poshta_post_offices_choices():
 
 def draw_pdf_invoice(order):
     buffer = BytesIO()
-    p = canvas.Canvas(buffer)
-    p.drawString(100, 750, "Invoice")
-    p.drawString(100, 700, "Product name")
-    p.drawString(250, 700, "Quantity")
-    p.drawString(400, 700, "Price")
-    y = 650
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    elements = []
+    data = [
+        ["Product name", "Quantity", "Price"]
+    ]
 
     for item in order.items.all():
-        p.drawString(100, y, item.product.name)
-        p.drawString(250, y, str(item.quantity))
-        p.drawString(400, y, str(item.product.price))
-        y -= 50
-    p.drawString(400, y - 50, "Total: " + str(order.total_amount))
-    p.showPage()
-    p.save()
+        data.append([item.product.name, str(item.quantity), str(item.product.price)])
+
+    # Add row for bonuses and paid status
+    data.append(["", "", ""])
+    data.append(["Bonuses:", "", f"{order.total_bonuses_amount}$"])
+    data.append(["Paid:", "", "Yes" if order.payment_info.is_paid else "No"])
+
+    style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+    ])
+
+    table = Table(data)
+    table.setStyle(style)
+
+    elements.append(table)
+
+    doc.build(elements)
     buffer.seek(0)
     invoice = buffer.getvalue()
+    buffer.close()
+
     return invoice

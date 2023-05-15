@@ -9,13 +9,12 @@ from .serializers import (OrderSerializer,
                           OrdersForAdminSerializer)
 from .models import Order
 from apps.basket.utils import BasketMixin
-from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAdminUser
 from apps.payment.services import paypal_complete_payment
 from .utils import OrderMixin
 
 
 class OrderAPIView(OrderMixin,
-                   BasketMixin,
                    ListCreateAPIView):
     serializer_class = OrderSerializer
     items_serializer = OrderItemsSerializer
@@ -39,6 +38,7 @@ class OrderAPIView(OrderMixin,
 class OrderPaypalPaymentComplete(APIView):
 
     def get(self, *args, **kwargs):
+        mixin = OrderMixin()
         order_id = kwargs['order_id']
         payment_id = self.request.query_params.get('paymentId')
         payer_id = self.request.query_params.get('PayerID')
@@ -53,6 +53,7 @@ class OrderPaypalPaymentComplete(APIView):
                 order.user.bonuses_balance.save()
                 order.payment_info.bonus_taken = True
             order.payment_info.save()
+            mixin.send_email_with_invoice(order)
         return Response({'success': 'You successfully paid for order!'})
 
 

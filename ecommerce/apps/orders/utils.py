@@ -6,7 +6,7 @@ from apps.products.models import Products, AvailabilityStatuses
 from rest_framework.response import Response
 from django.db.models import Sum
 from django.conf import settings
-from django.core.mail import send_mail, EmailMessage, EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from .services import draw_pdf_invoice
 
@@ -176,13 +176,14 @@ class OrderMixin(BasketMixin):
                     # will be added PayPal payment link
                     value = response.data['total_amount']
                     response.data['payment_link'] = paypal_create_order(value, order_id)
+                else:
+                    self.send_email_with_invoice(order)
 
                 order_items = order.items.all().select_related('order',
                                                                'product')
                 response.data['order_items'] = self.items_serializer(instance=order_items,
                                                                      many=True).data
                 self.basket_operation(self.request)
-                self.send_email_with_invoice(order)
                 return response
             else:
                 return Response({'basket': 'You dont have items in your basket!'})

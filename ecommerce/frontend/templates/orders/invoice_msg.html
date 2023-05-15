@@ -1,24 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Чек</title>
+    <title>Invoice</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
-<h1>Чек</h1>
+<h1>Invoice</h1>
 <table>
     <tr>
-        <th>Название товара</th>
-        <th>Количество</th>
-        <th>Цена</th>
+        <th>Product name</th>
+        <th>Quantity</th>
+        <th>Price</th>
     </tr>
     {% for item in order.items.all %}
         <tr>
             <td>{{ item.product.name }}</td>
             <td>{{ item.quantity }}</td>
-            <td>{{ item.product.price }}</td>
+            <td>{{ item.total_price }}$</td>
         </tr>
     {% endfor %}
+    <tr>
+        <td colspan="3">&nbsp;</td>
+    </tr>
+    <tr>
+        <td>Bonuses:</td>
+        <td></td>
+        <td>{{ order.total_bonuses_amount }}$</td>
+    </tr>
+    <tr>
+        <td>Paid:</td>
+        <td></td>
+        <td>{% if order.payment_info.is_paid %}Yes {% else %}No{% endif %}</td>
+    </tr>
 </table>
-<p>Итого: {{ order.total }}</p>
 </body>
 </html>
