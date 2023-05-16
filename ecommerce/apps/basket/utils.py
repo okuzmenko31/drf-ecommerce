@@ -81,6 +81,23 @@ class BasketMixin:
                 select_related('user').get_or_create(user=request.user)
             clear_basket(self.__basket)
 
+    def clear_exist_basket(self, request):
+        """
+        We are using this method only if user
+        is authenticated and use of this method
+        is only expected when self.__basket is not
+        None and this is Basket model instance.
+        For example, we are setting self.__basket
+        in method get_basket_data as Basket model
+        instance if user is authenticated.
+
+        The main use of this method is to avoid
+        needlessly accessing the cart table when
+        we are clearing it.
+        """
+        if request.user.is_authenticated:
+            clear_basket(self.__basket)
+
     @staticmethod
     def get_basket_len(basket):
         return len(basket)

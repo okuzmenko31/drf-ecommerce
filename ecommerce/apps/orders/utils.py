@@ -19,11 +19,10 @@ class OrderMixin(BasketMixin):
     Mixin which creates order with items
     from user's basket. Creates order and
     returns response with order data or
-    with error message. Also mixin have method
+    with error message. Also, mixin have method
     which gets or creates user's shipping
-    info and returns it.
-
-    TODO: to create receipts method.
+    info and returns it. And to all this, there is
+    a method for sending an invoice to the mail.
     """
     items_serializer = None
     operation_type = BasketOperationTypes.basket_clear
@@ -121,7 +120,18 @@ class OrderMixin(BasketMixin):
         order.total_amount = order_total_amount
         order.save()
 
-    def order_total_amount_with_coupon(self, order: Order):
+    def order_total_amount_with_coupon(self, order: Order) -> bool:
+        """
+        This method counts order total amount
+        if order have coupon.
+
+        Args:
+            order(Order): order instance.
+
+        Returns:
+            bool: True or false depending on whether the total
+                  amount of the order has been changed.
+        """
         order_total_values = self.get_order_total_values(order)
         order_total_amount = order_total_values['total_amount']
 
@@ -160,6 +170,14 @@ class OrderMixin(BasketMixin):
             Response: response with order data or with its problems.
         """
         basket_data = self.get_basket_data(self.request)
+
+        if self.request.user.is_authenticated:
+            # we need it in this case because in this
+            # way we avoid unnecessary access to the cart table.
+            self.clear_exist_basket(self.request)
+        else:
+            self.basket_operation(self.request)
+
         not_available_basket_products = self.get_not_available_basket_products(basket_data)
 
         if not len(not_available_basket_products) > 0:
@@ -171,7 +189,7 @@ class OrderMixin(BasketMixin):
                 order_id = response.data['id']
 
                 try:
-                    order = Order.objects.select_related('user').get(id=order_id)
+                    order = Order.objects.select_related('user').prefetch_related('items').get(id=order_id)
                 except Order.DoesNotExist:
                     return Response({'error': 'Order does not exist!'})
 
@@ -181,11 +199,16 @@ class OrderMixin(BasketMixin):
                                               product_id=item['product'],
                                               quantity=item['quantity'],
                                               total_price=item['total_price'])
+
+                order_items = order.items.all().select_related('order',
+                                                               'product')
+
                 if order.coupon and self.order_total_amount_with_coupon(order):
                     # here order total amount with discount from coupon
                     response.data['total_amount'] = order.total_amount
                 else:
-                    response.data['total_amount'] = self.get_order_total_values(order)['total_amount']
+                    response.data['total_amount'] = order_items.aggregate(
+                        total_amount=Sum('total_price'))['total_amount']
 
                 if response.data['payment_method'] == Order.PAYMENT_METHODS[1][0] and not order.payment_info.is_paid:
                     # if payment method is by card, to the response
@@ -199,11 +222,8 @@ class OrderMixin(BasketMixin):
                     # of bonuses without payment(in case if payment method is by card).
                     self.send_email_with_invoice(order)
 
-                order_items = order.items.all().select_related('order',
-                                                               'product')
                 response.data['order_items'] = self.items_serializer(instance=order_items,
                                                                      many=True).data
-                self.basket_operation(self.request)
                 return response
             else:
                 return Response({'basket': 'You dont have items in your basket!'})
