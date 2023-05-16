@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from .services import draw_pdf_invoice
+from apps.products.services import get_discount
 
 email_sender = settings.EMAIL_HOST_USER
 
@@ -120,6 +121,19 @@ class OrderMixin(BasketMixin):
         order.total_amount = order_total_amount
         order.save()
 
+    def order_total_amount_with_coupon(self, order: Order):
+        order_total_values = self.get_order_total_values(order)
+        order_total_amount = order_total_values['total_amount']
+
+        if order.user and order.coupon and order.coupon.is_active:
+            order_total_amount = get_discount(order_total_amount, order.coupon.coupon.discount)
+            order.total_amount = order_total_amount
+            order.coupon.is_active = False
+            order.coupon.save()
+            order.save()
+            return True
+        return False
+
     def send_email_with_invoice(self, order: Order):
         html = render_to_string(self.invoice_html_template, {'order': order})
         invoice = draw_pdf_invoice(order)
@@ -167,8 +181,11 @@ class OrderMixin(BasketMixin):
                                               product_id=item['product'],
                                               quantity=item['quantity'],
                                               total_price=item['total_price'])
-
-                response.data['total_amount'] = self.get_order_total_values(order)['total_amount']
+                if order.coupon and self.order_total_amount_with_coupon(order):
+                    # here order total amount with discount from coupon
+                    response.data['total_amount'] = order.total_amount
+                else:
+                    response.data['total_amount'] = self.get_order_total_values(order)['total_amount']
 
                 if response.data['payment_method'] == Order.PAYMENT_METHODS[1][0] and not order.payment_info.is_paid:
                     # if payment method is by card, to the response

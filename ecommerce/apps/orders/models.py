@@ -1,6 +1,7 @@
 from django.db import models
 from apps.products.models import Products
 from apps.users.models import UserShippingInfo, User
+from apps.coupons.models import UserCoupons
 
 
 class Order(models.Model):
@@ -35,10 +36,11 @@ class Order(models.Model):
     order_status = models.IntegerField(verbose_name='Order status',
                                        choices=ORDER_STATUSES,
                                        default=1)
-    coupon = models.CharField(max_length=15,
-                              verbose_name='Coupon',
-                              blank=True,
-                              null=True)
+    coupon = models.ForeignKey(UserCoupons,
+                               on_delete=models.SET_NULL,
+                               verbose_name='Coupon',
+                               blank=True,
+                               null=True)
     total_amount = models.IntegerField(default=0,
                                        verbose_name='Total amount of order')
     total_bonuses_amount = models.IntegerField(default=0,

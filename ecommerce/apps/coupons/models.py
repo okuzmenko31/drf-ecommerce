@@ -60,7 +60,7 @@ class UserCoupons(models.Model):
         verbose_name_plural = "Users' coupons"
 
     def __str__(self):
-        return f'Coupon of: {self.user.username}'
+        return f'Coupon for product: {self.coupon.product.name}. Discount: {self.coupon.discount}%'
 
     def save(self, *args, **kwargs):
         if self.started_at is None:

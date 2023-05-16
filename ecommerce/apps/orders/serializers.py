@@ -23,6 +23,14 @@ class OrderSerializer(OrderMixin,
                       serializers.ModelSerializer):
     shipping_info = UserShippingInfoSerializer()
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'request' in self.context:
+            if self.context['view'].request.user.is_authenticated:
+                self.fields['coupon'].queryset = self.fields['coupon'].queryset.filter(
+                    user=self.context['view'].request.user,
+                    is_active=True)
+
     class Meta:
         model = Order
         fields = ('id', 'shipping_info',
