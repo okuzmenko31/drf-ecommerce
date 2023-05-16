@@ -23,6 +23,7 @@ class OrderAPIView(OrderMixin,
     queryset = Order.objects.all()
     permission_classes = [AllowAny]
     authentication_classes = [SessionAuthentication, TokenAuthentication]
+    send_invoice_with_celery = True
 
     def list(self, request, *args, **kwargs):
         data = self.get_basket_data(request)
@@ -39,6 +40,7 @@ class OrderAPIView(OrderMixin,
 
 class OrderPaypalPaymentComplete(OrderMixin,
                                  APIView):
+    send_invoice_with_celery = True
 
     def get(self, *args, **kwargs):
         mixin = OrderMixin()

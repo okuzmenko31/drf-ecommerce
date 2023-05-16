@@ -10,6 +10,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from .services import draw_pdf_invoice
 from apps.products.services import get_discount
+from .tasks import order_send_email_with_invoice
 
 email_sender = settings.EMAIL_HOST_USER
 
@@ -151,7 +152,11 @@ class OrderMixin(BasketMixin):
         subject = 'DRF ECOMMERCE'
         message = f'Invoice for order# {order.id}'
         if self.send_invoice_with_celery:
-            pass
+            order_send_email_with_invoice.delay(message=message,
+                                                subject=subject,
+                                                email=order.shipping_info.email,
+                                                order_id=order.id,
+                                                html=html)
         else:
             email = EmailMultiAlternatives(message, subject, email_sender, [order.shipping_info.email])
             email.attach('invoice.pdf', invoice, 'application/pdf')
