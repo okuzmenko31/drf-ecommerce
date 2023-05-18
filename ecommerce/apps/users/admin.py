@@ -28,7 +28,7 @@ class UserAdmin(BaseUserAdmin):
         ),
     )
 
-    list_display = ('email', 'username', 'full_name', 'bonuses_balance')
+    list_display = ('id', 'email', 'username', 'full_name', 'bonuses_balance')
     list_filter = ('is_staff', 'is_superuser', 'is_active')
     search_fields = ('email', 'full_name', 'username')
     ordering = ('email',)

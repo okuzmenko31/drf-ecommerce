@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 from django.urls import include
 
 router = DefaultRouter()
-router.register(r'categories', viewset=CategoriesViewSet, basename='categories')
+router.register(r'', viewset=CategoriesViewSet, basename='categories')
 
 urlpatterns = [
     path('', include(router.urls))

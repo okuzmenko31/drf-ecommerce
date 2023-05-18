@@ -6,7 +6,8 @@ from django.utils.text import slugify
 
 
 class ProductDescriptionCategory(models.Model):
-    name = models.CharField(verbose_name='Description category name',
+    name = models.CharField(max_length=150,
+                            verbose_name='Description category name',
                             unique=True)
 
     class Meta:
@@ -64,7 +65,8 @@ class ProductCharacteristics(models.Model):
                                 verbose_name='Product',
                                 related_name='characteristics',
                                 null=False)
-    name = models.CharField(blank=True,
+    name = models.CharField(max_length=150,
+                            blank=True,
                             null=True,
                             verbose_name='characteristics name')
     value = models.CharField(max_length=200,
