@@ -31,13 +31,9 @@ for managing products, orders, and user authentication.
 - EMAIL_PORT - ```587``` for example.
 - EMAIL_USE_TLS - ```True``` for example.
   #### Some articles about email sending in Django
-- **
-  *[Send emails with Django and Gmail , a better way](https://dev.to/abderrahmanemustapha/how-to-send-email-with-django-and-gmail-in-production-the-right-way-24ab)
-  ***
+- ***[Send emails with Django and Gmail , a better way](https://dev.to/abderrahmanemustapha/how-to-send-email-with-django-and-gmail-in-production-the-right-way-24ab)***
 - ***[How to Send Email with Django](https://www.abstractapi.com/guides/django-send-email)***
-- **
-  *[How to send emails with python django through google SMTP server for free](https://bshoo.medium.com/how-to-send-emails-with-python-django-through-google-smtp-server-for-free-22ea6ea0fb8e)
-  ***
+- ***[How to send emails with python django through google SMTP server for free](https://bshoo.medium.com/how-to-send-emails-with-python-django-through-google-smtp-server-for-free-22ea6ea0fb8e)***
 - ***[Use Django to send emails with SMTP](https://opensource.com/article/22/12/django-send-emails-smtp)***
 
   ###### NOVA POSHTA
