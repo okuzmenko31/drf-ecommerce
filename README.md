@@ -1,97 +1,100 @@
 # DRF ECOMMERCE
 
-
-
-DRF Ecommerce is an e-commerce platform built using Django and Django Rest Framework (DRF). It provides a set of APIs for managing products, orders, and user authentication.
-
-
-___
-
+DRF Ecommerce is an e-commerce platform built using Django and Django Rest Framework (DRF). It provides a set of APIs
+for managing products, orders, and user authentication.
 
 ## Configure .env file
 
+###### DJANGO SETTINGS
 
-   ###### DJANGO SETTINGS
- - SECRET_KEY - you can generate it [here](https://djecrety.ir/).
- - DEBUG - by default this value is ```True```.
- - LANGUAGE_CODE - by default this value is ```en-us```.
- - TIME_ZONE - by default this value is ```UTC```
+- SECRET_KEY - you can generate it [here](https://djecrety.ir/).
+- DEBUG - by default this value is ```True```.
+- LANGUAGE_CODE - by default this value is ```en-us```.
+- TIME_ZONE - by default this value is ```UTC```
 
-   ###### DATABASE CONNECTION
- - DB_ENGINE - by default this value is ```django.db.backend.sqlite3```.
-For example, you can write ```django.db.backends.postgresql```.
- - DB_NAME - any database name that you want, for example ```drf_ecommerce_db```.
- - DB_USER - any user that you want.
- - DB_PASSWORD - any password that you want.
- - DB_HOST - ```localhost```.
- - DB_PORT - ```5432``` for example.
-   
-   ###### EMAIL CONNECTION
- - EMAIL_HOST - any email host that you want, for example
-you can use gmail - ```EMAIL_HOST=smtp.gmail.com```
- - EMAIL_HOST_USER - your email.
- - EMAIL_HOST_PASSWORD - password from your account if you
-don't use 2FA authentication. If you are using 2FA authentication
-you need to paste here password which Google(if you are yousing Gmail) provided to you during the setup process.
- - EMAIL_PORT - ```587``` for example.
- - EMAIL_USE_TLS - ```True``` for example.
-    #### Some articles about email sending in Django
- - ***[Send emails with Django and Gmail , a better way](https://dev.to/abderrahmanemustapha/how-to-send-email-with-django-and-gmail-in-production-the-right-way-24ab)***
- - ***[How to Send Email with Django](https://www.abstractapi.com/guides/django-send-email)***
- - ***[How to send emails with python django through google SMTP server for free](https://bshoo.medium.com/how-to-send-emails-with-python-django-through-google-smtp-server-for-free-22ea6ea0fb8e)***
- - ***[Use Django to send emails with SMTP](https://opensource.com/article/22/12/django-send-emails-smtp)***
-  
-   ###### NOVA POSHTA
- - NOVA_POSHTA_API_KEY - your nova poshta API KEY.
-To generate API KEY go [there](https://new.novaposhta.ua/), register or 
-Sign In. Go to the [settings](https://new.novaposhta.ua/dashboard/settings) and
-after [security](https://new.novaposhta.ua/dashboard/settings/developers) and generate API KEY
-and paste it here ```NOVA_POSHTA_API_KEY=your_api_key```
-   
-   ###### PAYPAL
-   #### First of all you need to create an account.
- - [Create paypal account](https://www.paypal.com/ua/welcome/signup/#/intent)
- - [Go to the dashboard](https://developer.paypal.com/dashboard/)
- - [Go apps & credentials](https://developer.paypal.com/dashboard/applications/sandbox) and create app.
- - Go to your created app.
+  ###### DATABASE CONNECTION
+- DB_ENGINE - by default this value is ```django.db.backend.sqlite3```.
+  For example, you can write ```django.db.backends.postgresql```.
+- DB_NAME - any database name that you want, for example ```drf_ecommerce_db```.
+- DB_USER - any user that you want.
+- DB_PASSWORD - any password that you want.
+- DB_HOST - ```localhost```.
+- DB_PORT - ```5432``` for example.
 
-   #### In .env file
- - PAYPAL_CLIENT_ID - paste your ```client_id``` from you app page.
- - PAYPAL_CLIENT_SECRET - paste ```your secret_key``` from your app page.
+  ###### EMAIL CONNECTION
+- EMAIL_HOST - any email host that you want, for example
+  you can use gmail - ```EMAIL_HOST=smtp.gmail.com```
+- EMAIL_HOST_USER - your email.
+- EMAIL_HOST_PASSWORD - password from your account if you
+  don't use 2FA authentication. If you are using 2FA authentication
+  you need to paste here password which Google(if you are yousing Gmail) provided to you during the setup process.
+- EMAIL_PORT - ```587``` for example.
+- EMAIL_USE_TLS - ```True``` for example.
+  #### Some articles about email sending in Django
+- **
+  *[Send emails with Django and Gmail , a better way](https://dev.to/abderrahmanemustapha/how-to-send-email-with-django-and-gmail-in-production-the-right-way-24ab)
+  ***
+- ***[How to Send Email with Django](https://www.abstractapi.com/guides/django-send-email)***
+- **
+  *[How to send emails with python django through google SMTP server for free](https://bshoo.medium.com/how-to-send-emails-with-python-django-through-google-smtp-server-for-free-22ea6ea0fb8e)
+  ***
+- ***[Use Django to send emails with SMTP](https://opensource.com/article/22/12/django-send-emails-smtp)***
 
-   #### To test payments create sandox account
- - Go to the [Testing Tools/Sandox accounts](https://developer.paypal.com/dashboard/accounts)
- - [Create account](https://developer.paypal.com/dashboard/accounts/create)
- - Select personal(Buyer Account) and create account.
- - [At the accounts page](https://developer.paypal.com/dashboard/accounts) click for three buttons and 
-click ```view/edit``` account.
- - Go to the funding, scroll to down and click edit.
- - Write amount that you want to have in an account and click save.
+  ###### NOVA POSHTA
+- NOVA_POSHTA_API_KEY - your nova poshta API KEY.
+  To generate API KEY go [there](https://new.novaposhta.ua/), register or
+  Sign In. Go to the [settings](https://new.novaposhta.ua/dashboard/settings) and
+  after [security](https://new.novaposhta.ua/dashboard/settings/developers) and generate API KEY
+  and paste it here ```NOVA_POSHTA_API_KEY=your_api_key```
 
+  ###### PAYPAL
+  #### First of all you need to create an account.
+- [Create paypal account](https://www.paypal.com/ua/welcome/signup/#/intent)
+- [Go to the dashboard](https://developer.paypal.com/dashboard/)
+- [Go apps & credentials](https://developer.paypal.com/dashboard/applications/sandbox) and create app.
+- Go to your created app.
+
+  #### In .env file
+- PAYPAL_CLIENT_ID - paste your ```client_id``` from you app page.
+- PAYPAL_CLIENT_SECRET - paste ```your secret_key``` from your app page.
+
+  #### To test payments create sandox account
+- Go to the [Testing Tools/Sandox accounts](https://developer.paypal.com/dashboard/accounts)
+- [Create account](https://developer.paypal.com/dashboard/accounts/create)
+- Select personal(Buyer Account) and create account.
+- [At the accounts page](https://developer.paypal.com/dashboard/accounts) click for three buttons and
+  click ```view/edit``` account.
+- Go to the funding, scroll to down and click edit.
+- Write amount that you want to have in an account and click save.
 
 ## Installation and running
 
 1. ### Clone the repository:
+
 ```git
 git clone https://github.com/okuzmenko31/drf-ecommerce.git
 ```
+
 2. ### Go to the project directory:
+
 ```python
-cd ecommerce
+cd
+ecommerce
 ```
 
 3. ### Build app with docker-compose
+
 ```shell
 docker-compose build
 ```
 
 4. ### Up docker-compose
+
 ```shell
 docker-compose up
 ```
 
 ## API Reference
-
 
 ## Registration
 
@@ -106,8 +109,6 @@ docker-compose up
     "password1": "password"
 }
 ```
-
-
 
 ### Response
 
@@ -129,9 +130,11 @@ Vary: Accept
 ## Confimation of email and registration
 
 ### Request
+
 ```GET /api/v1/user/confirm_email/<token>/<email>/```
 
 ### Response - if all is ok.
+
 ```
 HTTP 200 OK
 Allow: GET, HEAD, OPTIONS
@@ -146,6 +149,7 @@ Vary: Accept
 ## Login
 
 ### Request
+
 ```POST /api/v1/user/login/```
 
 ```
@@ -156,6 +160,7 @@ Vary: Accept
 ```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, POST, HEAD, OPTIONS
@@ -192,6 +197,7 @@ Vary: Accept
 ### Request
 
 ```PUT /api/v1/user/profile/```
+
 ```
 {
     "username": "@test",
@@ -200,6 +206,7 @@ Vary: Accept
 ```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, PUT, PATCH, HEAD, OPTIONS
@@ -216,7 +223,9 @@ Vary: Accept
 ## Change email
 
 ### Request
+
 ```POST /api/v1/user/change_email/```
+
 ```
 {
    "email": "new_test@gmail.com"
@@ -224,6 +233,7 @@ Vary: Accept
 ```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: POST, OPTIONS
@@ -238,9 +248,11 @@ Vary: Accept
 ## Email changing confirmation
 
 ### Request
+
 ```GET /api/v1/change_email_confirm/<token>/<email>/```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, HEAD, OPTIONS
@@ -255,7 +267,9 @@ Vary: Accept
 ## Password reset
 
 ### Request
+
 ```POST /api/v1/user/password_reset/```
+
 ```
 {
    "email": "new_test@gmail.com"
@@ -263,6 +277,7 @@ Vary: Accept
 ```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: POST, OPTIONS
@@ -277,9 +292,11 @@ Vary: Accept
 ## Password reset confirmation
 
 ### Request
+
 ```GET /api/v1/user/password_reset/<token>/<email>/```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, POST, HEAD, OPTIONS
@@ -292,7 +309,9 @@ Vary: Accept
 ```
 
 ### Request
+
 ```POST /api/v1/user/password_reset/<token>/<email>/```
+
 ```
 {
    "password": "new_password",
@@ -301,6 +320,7 @@ Vary: Accept
 ```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, POST, HEAD, OPTIONS
@@ -315,9 +335,11 @@ Vary: Accept
 ## Bonuses balance page
 
 ### Request
+
 ```GET /api/v1/user/bonuses_balance/```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, HEAD, OPTIONS
@@ -335,7 +357,9 @@ Vary: Accept
 ## Update bonuses balance - only for admins
 
 ### Request
+
 ```PUT /api/v1/user/update_bonuses/<pk>/```
+
 ```
 {
     "balance": 100
@@ -343,6 +367,7 @@ Vary: Accept
 ```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, PUT, PATCH, HEAD, OPTIONS
@@ -358,9 +383,11 @@ Vary: Accept
 ## Products
 
 ### Request
+
 ```GET /api/v1/products/```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, POST, HEAD, OPTIONS
@@ -411,7 +438,9 @@ Vary: Accept
 ```
 
 ### Request - only for admins
+
 ```POST /api/v1/products/```
+
 ```
 {
     "name": "Apple iPhone 14 Pro Max 512GB Space Black",
@@ -425,6 +454,7 @@ Vary: Accept
 ```
 
 ### Response
+
 ```
 HTTP 201 Created
 Allow: GET, POST, HEAD, OPTIONS
@@ -449,9 +479,11 @@ Vary: Accept
 ## Product detail
 
 ### Request
+
 ```GET /api/v1/products/<pk>/```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
@@ -477,9 +509,11 @@ Vary: Accept
 ## Products by category
 
 ### Request
+
 ```GET /api/v1/products/by_category/<category_id>/```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, HEAD, OPTIONS
@@ -545,9 +579,11 @@ Vary: Accept
 ## Product variations
 
 ### Request
+
 ```GET /api/v1/products/variations/<product_id>/```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, HEAD, OPTIONS
@@ -573,8 +609,8 @@ Vary: Accept
 ## Product variations by variation category
 
 ### Request
-```GET /api/v1/products/variations/<product_id>/<parent_id>/```
 
+```GET /api/v1/products/variations/<product_id>/<parent_id>/```
 
 ### Response
 
@@ -597,9 +633,11 @@ Vary: Accept
 ## Categories
 
 ### Request
+
 ```GET /api/v1/categories/```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, POST, HEAD, OPTIONS
@@ -632,7 +670,9 @@ Vary: Accept
 ```
 
 ### Request - only for admins
+
 ```POST /api/v1/categories/```
+
 ```
 {
     "id": 9,
@@ -661,9 +701,11 @@ Vary: Accept
 ## Category detail
 
 ### Request
+
 ```GET /api/v1/categories/<pk>/```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
@@ -678,7 +720,9 @@ Vary: Accept
 ```
 
 ### Request - only for admins
+
 ```PUT /api/v1/categories/<pk>/```
+
 ```
 {
     "id": 1,
@@ -688,6 +732,7 @@ Vary: Accept
 ```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
@@ -702,9 +747,11 @@ Vary: Accept
 ```
 
 ### Request - only for admins
+
 ```DELETE /api/v1/categories/<pk>/```
 
 ### Response
+
 ```
 HTTP 204 No Content
 Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
@@ -715,9 +762,11 @@ Vary: Accept
 ## Basket
 
 ### Request
+
 ```GET /api/v1/basket/```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, HEAD, OPTIONS
@@ -732,10 +781,11 @@ Vary: Accept
 ## Basket add
 
 ### Request
+
 ```POST /api/v1/basket/add/<product_id>/```
 
-
 ### Response
+
 ```
 HTTP 200 OK
 Allow: POST, OPTIONS
@@ -763,9 +813,11 @@ Vary: Accept
 ## Basket add quantity
 
 ### Request
+
 ```POST /api/v1/basket/add_quantity/<product_id>/```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: POST, OPTIONS
@@ -793,9 +845,11 @@ Vary: Accept
 ## Basket minus quantity
 
 ### Request
+
 ```POST /api/v1/basket/minus_quantity/<product_id>/```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: POST, OPTIONS
@@ -823,9 +877,11 @@ Vary: Accept
 ## Basket clear
 
 ### Request
+
 ```POST /api/v1/basket/clear/```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, POST, HEAD, OPTIONS
@@ -846,9 +902,11 @@ Vary: Accept
 ## Checkout
 
 ### Request
+
 ```GET /api/v1/orders/checkout/```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, POST, HEAD, OPTIONS
@@ -874,7 +932,9 @@ Vary: Accept
 ```
 
 ### Request
+
 ```POST /api/v1/orders/checkout/```
+
 ```
 {
     "shipping_info": {
@@ -897,6 +957,7 @@ Vary: Accept
 ```
 
 ### Response
+
 ```
 HTTP 201 Created
 Allow: GET, POST, HEAD, OPTIONS
@@ -948,9 +1009,11 @@ Vary: Accept
 ## Payment complete
 
 ### Request
+
 ```GET /api/v1/orders/order/<order_id>/<payment_id>/<payer_id/>```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, HEAD, OPTIONS
@@ -969,6 +1032,7 @@ Vary: Accept
 ```GET /api/v1/stock```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, POST, HEAD, OPTIONS
@@ -995,6 +1059,7 @@ Vary: Accept
 ### Request
 
 ```POST /api/v1/stock/```
+
 ```
 {
     "product": Apple iPhone 13 Pro 512GB Space Black,
@@ -1006,6 +1071,7 @@ Vary: Accept
 ```
 
 ### Reponse
+
 ```
 HTTP 201 Created
 Allow: GET, POST, HEAD, OPTIONS
@@ -1030,9 +1096,11 @@ Vary: Accept
 ## Stock item detail
 
 ### Request
+
 ```GET /api/v1/stock/<item_id>/```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
@@ -1055,7 +1123,9 @@ Vary: Accept
 ```
 
 ### Request
+
 ```PUT /api/v1/stock/<itemd_id>/```
+
 ```
 {
     "id": 1,
@@ -1073,6 +1143,7 @@ Vary: Accept
 ```
 
 ### Response
+
 ```
 HTTP 200 OK
 Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
@@ -1095,9 +1166,11 @@ Vary: Accept
 ```
 
 ### Request
+
 ```DELETE /api/v1/stock/<item_id>/```
 
 ### Response
+
 ```
 HTTP 204 No Content
 Allow: GET, PUT, PATCH, DELETE, HEAD, OPTIONS
