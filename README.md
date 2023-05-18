@@ -1,4 +1,4 @@
-## DRF ECOMMERCE
+# DRF ECOMMERCE
 
 DRF Ecommerce is an e-commerce platform built using Django and Django Rest Framework (DRF). It provides a set of APIs
 for managing products, orders, and user authentication.
