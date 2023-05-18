@@ -1,16 +1,15 @@
-<p align="center" style="font-weight: 800; font-size: 3rem">DRF ECOMMERCE</p>
+# DRF ECOMMERCE
 
 
 
-
-<p align="center">DRF Ecommerce is an e-commerce platform built using Django and Django Rest Framework (DRF). It provides a set of APIs for managing products, orders, and user authentication.</p>
+DRF Ecommerce is an e-commerce platform built using Django and Django Rest Framework (DRF). It provides a set of APIs for managing products, orders, and user authentication.
 
 
 ___
 
 
 ## Configure .env file
-___
+
 
    ###### DJANGO SETTINGS
  - SECRET_KEY - you can generate it [here](https://djecrety.ir/).
@@ -71,7 +70,7 @@ click ```view/edit``` account.
 
 
 ## Installation and running
-___
+
 1. ### Clone the repository:
 ```git
 git clone https://github.com/okuzmenko31/drf-ecommerce.git
@@ -92,7 +91,7 @@ docker-compose up
 ```
 
 ## API Reference
-___
+
 
 ## Registration
 
